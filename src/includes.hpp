@@ -91,6 +91,7 @@ struct Venv{
     Token operatorMINUS = Token(false);
     Token operatorMULT = Token(false);
     Token operatorDIV = Token(false);
+    Token operatorMOD = Token(false);
     Token operatorPOWER = Token(false);
     Token operatorAND = Token(false);
     Token operatorOR = Token(false);
