@@ -3072,88 +3072,105 @@ void interpret(std::vector<Token> code, Venv* venv, std::string path){
                             freedlibs();
                             exit(-1);
                         }
+                    }else if(std::any_cast<std::string>(code.at(i-1).data.at(0)) == "keyword"){
+                        std::cout << std::any_cast<std::string>(code.at(i-1).data.at(1)) << "\n";
+                        if (!(isIndexInBounds(code, i-2) && std::any_cast<std::string>(code.at(i-2).data.at(0)) == "word")){
+                            print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Expected var name before '='!", PRINT_WHITE, PRINT_ERROR);
+                            //print("ERROR: Expected var name before '='.", PRINT_WHITE, PRINT_ERROR);
+                            freedlibs();
+                            exit(-1);
+                        }
+                        int operation;
+                        if(std::any_cast<std::string>(code.at(i-1).data.at(1)) == "+"){
+                            operation = 0;
+                        }else if(std::any_cast<std::string>(code.at(i-1).data.at(1)) == "-"){
+                            operation = 1;
+                        }else if(std::any_cast<std::string>(code.at(i-1).data.at(1)) == "*"){
+                            operation = 2;
+                        }else if(std::any_cast<std::string>(code.at(i-1).data.at(1)) == "/"){
+                            operation = 3;
+                        }
+
+
+                        std::string varN = std::any_cast<std::string>(code.at(i-2).data.at(1));
+                        std::vector<Var*> venvvars = getvars(venv);
+                        if (varinlist(venvvars, varN)){
+                            Venv* varvenv;
+                            if (venv->varin(varN)){
+                                varvenv = venv;
+                            }else if(venv->parent!=NULL){
+                                bool end = false;
+                                varvenv = venv->parent;
+                                while (!end){
+                                    if (varvenv->varin(varN)){
+                                        end = true;
+                                    }else{
+                                        varvenv = varvenv->parent;
+                                    }
+                                }
+                            }
+                            bool finished = false;
+                            int x = i+1;
+                            int end = 0;
+                            while (!finished){
+                                if (x == code.size()){
+                                    finished = true;
+                                    print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Expected ';'!", PRINT_WHITE, PRINT_ERROR);
+                                    //print("ERROR: Expected \";\"", PRINT_WHITE, PRINT_ERROR);
+                                    freedlibs();
+                                    exit(-1);
+                                }
+                                if (std::any_cast<std::string>(code[x].data[0]) == "keyword"){
+                                    if (std::any_cast<std::string>(code[x].data[1]) == ";"){
+                                        end = x-1;
+                                        finished = true;
+                                    }
+                                }
+                                
+                                x++;
+                            }
+                            //std::cout << end << "\n";
+                            //std::cout << "sdfsfdsdfsas p;k;lkm;pm'pol'p;l,';l,'p[hjl'pjlk'hgpljk'hpjlk'hj[plk'hjpkl'hjdfaksdgfkahsgdkfjas gkdjga skdjh gaksjdh fkasjdjf\n";
+                            std::vector<Token> resultvector_ = getSubvector(code, i+1, end);
+                            Token extratoken;
+                            extratoken.data.push_back((std::string)"keyword");
+                            if (operation == 0){
+                                extratoken.data.push_back((std::string)"+");
+                            }else if(operation == 1){
+                                extratoken.data.push_back((std::string)"-");
+                            }else if(operation == 2){
+                                extratoken.data.push_back((std::string)"*");
+                            }else if(operation == 3){
+                                extratoken.data.push_back((std::string)"/");
+                            }
+                            Token extratoken_;
+                            extratoken_.data.push_back((std::string)"word");
+                            extratoken_.data.push_back(varN);
+
+                            std::vector<Token> resultvector = {extratoken_, extratoken};
+                            //resultvector.insert(resultvector.end(), resultvector.begin(), resultvector.end());
+                            int ak = 0;
+                            while (ak!=resultvector_.size()){
+
+                                resultvector.push_back(resultvector_.at(ak));
+                                ak ++;
+                            }
+                            Token result = eval(resultvector, venv, path);
+                            //std::cout << std::any_cast<std::string>(result.data[0]) << "\n";
+                            varvenv->vars.at(varvenv->varindex(varN)).data = result;
+                            
+                            //std::cout << "var name: " << varN << "\n";
+                            //std::cout << std::any_cast<std::string>(varvenv->vars.at(varvenv->varindex(varN)).data.data[1]) << "\n";
+                            i = end;
+                            last_cut = i+1;
+                            //while(i>=startindex){
+                            //    //std::cout << std::any_cast<std::string>(code[i].data[1]) << " " << i << "\n";
+                            //    removeAtIndex(code, i);
+                            //    i--;
+                            //}
+                        }
                     }
-                    //}else if(std::any_cast<std::string>(code.at(i-1).data.at(0)) == "keyword"){
-                    //    if (!(isIndexInBounds(code, i-2) && std::any_cast<std::string>(code.at(i-2).data.at(0)) == "word")){
-                    //        print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Expected var name before '='!", PRINT_WHITE, PRINT_ERROR);
-                    //        //print("ERROR: Expected var name before '='.", PRINT_WHITE, PRINT_ERROR);
-                    //        freedlibs();
-                    //        exit(-1);
-                    //    }
-                    //    int operation;
-                    //    if(std::any_cast<std::string>(code.at(i-1).data.at(1)) == "+"){
-                    //        operation = 0;
-                    //    }else if(std::any_cast<std::string>(code.at(i-1).data.at(1)) == "-"){
-                    //        operation = 1;
-                    //    }else if(std::any_cast<std::string>(code.at(i-1).data.at(1)) == "*"){
-                    //        operation = 2;
-                    //    }else if(std::any_cast<std::string>(code.at(i-1).data.at(1)) == "/"){
-                    //        operation = 3;
-                    //    }
-//
-                    //    std::string varN = std::any_cast<std::string>(code.at(i-2).data.at(1));
-                    //    std::vector<Var*> venvvars = getvars(venv);
-                    //    if (varinlist(venvvars, varN)){
-                    //        Venv* varvenv;
-                    //        if (venv->varin(varN)){
-                    //            varvenv = venv;
-                    //        }else if(venv->parent!=NULL){
-                    //            bool end = false;
-                    //            varvenv = venv->parent;
-                    //            while (!end){
-                    //                if (varvenv->varin(varN)){
-                    //                    end = true;
-                    //                }else{
-                    //                    varvenv = varvenv->parent;
-                    //                }
-                    //            }
-                    //        }
-                    //        bool finished = false;
-                    //        int x = i+1;
-                    //        int end = 0;
-                    //        while (!finished){
-                    //            if (x == code.size()){
-                    //                finished = true;
-                    //                print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Expected ';'!", PRINT_WHITE, PRINT_ERROR);
-                    //                //print("ERROR: Expected \";\"", PRINT_WHITE, PRINT_ERROR);
-                    //                freedlibs();
-                    //                exit(-1);
-                    //            }
-                    //            if (std::any_cast<std::string>(code[x].data[0]) == "keyword"){
-                    //                if (std::any_cast<std::string>(code[x].data[1]) == ";"){
-                    //                    end = x-1;
-                    //                    finished = true;
-                    //                }
-                    //            }
-                    //            
-                    //            x++;
-                    //        }
-                    //        //std::cout << end << "\n";
-                    //        //std::cout << "sdfsfdsdfsas p;k;lkm;pm'pol'p;l,';l,'p[hjl'pjlk'hgpljk'hpjlk'hj[plk'hjpkl'hjdfaksdgfkahsgdkfjas gkdjga skdjh gaksjdh fkasjdjf\n";
-                    //        std::vector<Token> resultvector = getSubvector(code, i+1, end);
-                    //        Token result = eval(resultvector, venv, path);
-                    //        //std::cout << std::any_cast<std::string>(result.data[0]) << "\n";
-                    //        if (operation == 0){
-                    //            if (std::any_cast<std::string>(varvenv->vars.at(varvenv->varindex(varN)).data.data.at(0)) == "int"){
-                    //                
-                    //            }
-                    //            //varvenv->vars.at(varvenv->varindex(varN)).data += result;
-                    //        }
-                    //        
-                    //        //std::cout << "var name: " << varN << "\n";
-                    //        //std::cout << std::any_cast<std::string>(varvenv->vars.at(varvenv->varindex(varN)).data.data[1]) << "\n";
-                    //        i = end;
-                    //        last_cut = i+1;
-                    //        //while(i>=startindex){
-                    //        //    //std::cout << std::any_cast<std::string>(code[i].data[1]) << " " << i << "\n";
-                    //        //    removeAtIndex(code, i);
-                    //        //    i--;
-                    //        //}
-//
-//
-//
-//
-                    //}
+
                 }else{
                     print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Expected var name before '='!", PRINT_WHITE, PRINT_ERROR);
                     //print("ERROR: Expected var name before '='.", PRINT_WHITE, PRINT_ERROR);
