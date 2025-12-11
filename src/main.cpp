@@ -833,18 +833,6 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path){
                             }
                             std::vector<Token> code = std::any_cast<std::vector<Token>>(objectvenv->operatorMULT.data[0]);
                             std::vector<std::vector<Token>> argvector = std::any_cast<std::vector<std::vector<Token>>>(objectvenv->operatorMULT.data[1]);
-                            
-
-
-
-
-
-
-
-
-
-
-
 
                         }else{
                             print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Not implomented yet!", PRINT_WHITE, PRINT_ERROR);
@@ -902,6 +890,54 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path){
                     }else{
                         print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Not implomented yet!", PRINT_WHITE, PRINT_ERROR);
                         //std::cerr << "Not implemented yet!";
+                        freedlibs();
+                        exit(-1);
+                    }
+                }
+            }
+            else if (std::any_cast<std::string>(code.at(i).data.at(1)) == "%")
+            {
+                if (isIndexInBounds(code, i - 1) && isIndexInBounds(code, i + 1))
+                {
+                    if (std::any_cast<std::string>(code.at(i - 1).data.at(0)) == "int")
+                    {
+                        if (std::any_cast<std::string>(code.at(i + 1).data.at(0)) == "int")
+                        {
+                            int left = std::stoi(std::any_cast<std::string>(code.at(i - 1).data.at(1)));
+                            int right = std::stoi(std::any_cast<std::string>(code.at(i + 1).data.at(1)));
+
+                            code.at(i - 1).data.at(1) = std::to_string(left % right);
+
+                            removeAtIndex(code, i + 1);
+                            removeAtIndex(code, i);
+                            i -= 2;
+                        }
+                        else if (std::any_cast<std::string>(code.at(i + 1).data.at(0)) == "str")
+                        {
+                            print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Strings don't support modulo!", PRINT_WHITE, PRINT_ERROR);
+                            // std::cerr << "str don't support division";
+                            freedlibs();
+                            exit(-1);
+                        }
+                        else
+                        {
+                            print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Not implemented yet!", PRINT_WHITE, PRINT_ERROR);
+                            // std::cerr << "Not implemented yet!";
+                            freedlibs();
+                            exit(-1);
+                        }
+                    }
+                    else if (std::any_cast<std::string>(code.at(i - 1).data.at(0)) == "str")
+                    {
+                        print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Strings don't support modulo!", PRINT_WHITE, PRINT_ERROR);
+                        // std::cerr << "str don't support modulo";
+                        freedlibs();
+                        exit(-1);
+                    }
+                    else
+                    {
+                        print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Not implemented yet!", PRINT_WHITE, PRINT_ERROR);
+                        // std::cerr << "Not implemented yet!";
                         freedlibs();
                         exit(-1);
                     }
@@ -1431,6 +1467,34 @@ std::vector<Token> CTokens(std::string code){
             ret.push_back(token);
             token.data.clear();
             last_space = i+1;
+        }
+        else if (code[i] == '%' && !IS)
+        {
+            str = false;
+            if (num)
+            {
+                token.data.push_back((std::string) "int");
+                // token.type = "int";
+                num = false;
+            }
+            else
+            {
+                token.data.push_back((std::string) "word");
+                // token.type = "word";
+            }
+            token.data.push_back(code.substr(last_space, i - last_space));
+            token.data.push_back((std::string) "line: " + std::to_string(debug_line_count) + ":" + std::to_string(debug_index_count));
+            // token.data = code.substr(last_space, i-last_space);
+            ret.push_back(token);
+            token.data.clear();
+            token.data.push_back((std::string) "keyword");
+            // token.type = "keyword";
+            token.data.push_back((std::string) "%");
+            token.data.push_back((std::string) "line: " + std::to_string(debug_line_count) + ":" + std::to_string(debug_index_count));
+            // token.data = '%';
+            ret.push_back(token);
+            token.data.clear();
+            last_space = i + 1;
         }else if (code[i] == '^' && !IS){
             str = false;
             if (num){
@@ -2200,6 +2264,100 @@ void interpret(std::vector<Token> code, Venv* venv, std::string path){
                 }
                 last_cut = i+1;
 
+                std::cout << finalmsg << "\n";
+            }else if(std::any_cast<std::string>(code[i].data[1]) == "error"){
+                std::string finalmsg = "";
+                std::string message = "";
+                Token result;
+                std::vector<Token> subvector;
+                x = i;
+                int startindex = i;
+                int end1;
+                bool fin;
+                bool end = false;
+                while (!end){
+                    if (x==code.size()){
+                        i = x;
+                        end = true;
+                    }
+                    if (std::any_cast<std::string>(code[x].data[1]) == ";" && std::any_cast<std::string>(code[x].data[0]) == "keyword"){
+                        message += "\033[0m";
+                        finalmsg += message;
+                        message = "";
+                        i = x;
+                        end = true;
+                    }
+                    if (std::any_cast<std::string>(code[x].data[1]) == "<" && std::any_cast<std::string>(code[x].data[0]) == "keyword" && isIndexInBounds(code, x+2)){
+                        if (std::any_cast<std::string>(code[x+1].data[1]) == "<" && std::any_cast<std::string>(code[x+1].data[0]) == "keyword"){
+                            message += "\033[31m";
+                            finalmsg += message;
+                            message = "";
+                            //if (std::any_cast<std::string>(code[x+2].data[0]) == "str"){
+                            end1 = x+2;
+                            fin = false;
+                            while (!fin){
+                                if (std::any_cast<std::string>(code[end1].data[1]) == ";" && std::any_cast<std::string>(code[end1].data[0]) == "keyword"){
+                                    end1 -= 1;
+                                    fin = true;
+                                }
+                                if (!fin && std::any_cast<std::string>(code[end1].data[1]) == "<" && std::any_cast<std::string>(code[end1].data[0]) == "keyword" && isIndexInBounds(code, end1+1)){
+                                    if (std::any_cast<std::string>(code[end1+1].data[1]) == "<" && std::any_cast<std::string>(code[end1+1].data[0]) == "keyword"){
+                                        end1 -= 1;
+                                        fin = true;
+                                    }
+                                }
+                                if (!fin && std::any_cast<std::string>(code[end1].data[1]) == "c" && std::any_cast<std::string>(code[end1].data[0]) == "word" && isIndexInBounds(code, end1+1)){
+                                    if (std::any_cast<std::string>(code[end1+1].data[1]) == "<" && std::any_cast<std::string>(code[end1+1].data[0]) == "keyword"){
+                                        end1 -= 1;
+                                        fin = true;
+                                    }
+                                }
+                                if (!fin){
+                                    end1++;
+                                }
+                            }
+                            //std::cout << "start: " << x+2 << " end: " << end1 << "\n";
+                            
+                            if (end1<x+2){
+                                print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Expected string!", PRINT_WHITE, PRINT_ERROR);
+                                //print("ERROR: Expected str", PRINT_WHITE, PRINT_ERROR);
+                                freedlibs();
+                                exit(-1);
+                            }
+                            subvector = getSubvector(code, x+2, end1);
+                            //for (Token element : subvector) {
+                            //    std::cout << "data: " << std::any_cast<std::string>(element.data.at(1)) << ", type: " << std::any_cast<std::string>(element.data.at(0)) << "\n";
+                            //}
+                            result = eval(subvector, venv, path);
+                            if (std::any_cast<std::string>(result.data.at(0)) == "str"){
+                                message += std::any_cast<std::string>(result.data.at(1));
+                            }else if(std::any_cast<std::string>(result.data.at(0)) == "int"){
+                                message += std::any_cast<std::string>(result.data.at(1));
+                            }else{
+                                print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Expected str!", PRINT_WHITE, PRINT_ERROR);
+                                //print("ERROR: Expected str", PRINT_WHITE, PRINT_ERROR);
+                                freedlibs();
+                                exit(-1);
+                            }
+                            
+                        }
+                    }else if(std::any_cast<std::string>(code[x].data[1]) == "c" && std::any_cast<std::string>(code[x].data[0]) == "word" && isIndexInBounds(code, x+2)){
+                        if (std::any_cast<std::string>(code[x+1].data[1]) == "<" && std::any_cast<std::string>(code[x+1].data[0]) == "keyword"){
+                            print("Calling error doesn't support color! ", PRINT_WHITE, PRINT_ERROR);
+                            freedlibs();
+                            exit(-1);
+                        }
+                    }
+                    x++;
+                }
+                //std::cout << "x: " << startindex << " i: " << i << "\n";
+                while (i>=startindex){
+                    //std::cout << std::any_cast<std::string>(code[i].data[1]) << " " << i << "\n";
+                    removeAtIndex(code, i);
+                    i--;
+                }
+                last_cut = i+1;
+                
                 std::cout << finalmsg << "\n";
             }else if(std::any_cast<std::string>(code[i].data[1]) == "func"){
                 if (isIndexInBounds(code, i+1) && std::any_cast<std::string>(code[i].data[0]) == "word"){
