@@ -22,6 +22,7 @@
 
 static std::vector<dlib> dlibs;
 static sepynodedata spnglobaldata;
+std::vector<Venv> globalobjects;
 
 void interpret(std::vector<Token> code, Venv* venv, std::string path);
 
@@ -52,17 +53,23 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path){
     //}
     //i = 0;
 
+    //std::cout << "puioupo\n";
+    //std::cout << "venv addr: " << venv << "\n";
+
     std::vector<Var*> venvvars = getvars(venv);
+    //for (Var* var: venvvars){
+    //    var->print();
+    //}
     while (i<code.size()){
-        if (std::any_cast<std::string>(code[i].data[0]) == "word"){
-            if (varinlist(venvvars, std::any_cast<std::string>(code[i].data[1]))){
+        if (std::any_cast<std::string>(code.at(i).data.at(0)) == "word"){
+            if (varinlist(venvvars, std::any_cast<std::string>(code.at(i).data.at(1)))){
                 bool nonobjectvar = true;
-                if (isIndexInBounds(code, i-1) && std::any_cast<std::string>(code[i-1].data[0]) == "keyword" && std::any_cast<std::string>(code[i-1].data[1]) == "."){
+                if (isIndexInBounds(code, i-1) && std::any_cast<std::string>(code[i-1].data.at(0)) == "keyword" && std::any_cast<std::string>(code.at(i-1).data.at(1)) == "."){
                     nonobjectvar = false;
                 }
 
                 if (nonobjectvar){
-                    code[i] = venvvars[varinlistindex(venvvars, std::any_cast<std::string>(code[i].data[1]))]->data;//venv->vars[venv->varindex(std::any_cast<std::string>(code[i].data[1]))].data;
+                    code.at(i) = venvvars.at(varinlistindex(venvvars, std::any_cast<std::string>(code.at(i).data.at(1))))->data;//venv->vars[venv->varindex(std::any_cast<std::string>(code[i].data[1]))].data;
                 }
             }
             //if (venv->varin(std::any_cast<std::string>(code[i].data[1]))){
@@ -78,6 +85,7 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path){
         }
         i++;
     }
+    //std::cout << "sdfs\n";
 
     i = 0;
     while (i<code.size()){
@@ -125,7 +133,7 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path){
                 freedlibs();
                 exit(-1);
             }
-            Venv* objectvenv = &venv->objects[std::any_cast<int>(venvtoken.data[1])];
+            Venv* objectvenv = &globalobjects.at(std::any_cast<int>(venvtoken.data.at(1)));
 
             x = i+1;
             end = false;
@@ -428,7 +436,7 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path){
 
 
                     bool WordsActive = false;
-                    int argindex = 0;//why not 0? because 0 is the return standard function var, 1 is the os name, 2 is execute fucnction return and 3 is sepynode version// new change 0 is the new ...
+                    int argindex = 0;//why not 0?(well now its 0 lol too many changes...) because 0 is the return standard function var, 1 is the os name, 2 is execute fucnction return and 3 is sepynode version// new change 0 is the new ...
                     for (std::vector<Token> elements: argvector){
                         //std::cout << "start\n";
                         //elements.push_back(extraToken);
@@ -526,17 +534,18 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path){
                     std::vector<Var*> venvvars = getvars(venv);
 
                     code[i-1] = venvvars[varinlistindex(venvvars, "Function_result_return_value")]->data;
+                    //UMM my deam future self this seams kinda wrong, it might work most of the time and because local var are before global but please test it and maybe fix it even if its not going to have any difference
                     //FunctionVenv.vars[0].data;
 
                     
                 }else if (std::any_cast<std::string>(code.at(i-1).data.at(0)) == "class"){
                     //std::cout << i << " " << code.size() << "\n";
-                    venv->objects.push_back(Venv());
-                    int venvindex = venv->objects.size()-1;
-                    Venv* objectvenv = &venv->objects[venvindex];
+                    globalobjects.push_back(Venv());
+                    int venvindex = globalobjects.size()-1;
+                    Venv* objectvenv = &globalobjects[venvindex];
                     objectvenv->parent = venv;
 
-                    interpret(std::any_cast<std::vector<Token>>(code.at(i-1).data[1]), objectvenv, path); //&venv->objects[venvindex]
+                    interpret(std::any_cast<std::vector<Token>>(code.at(i-1).data[1]), objectvenv, path); //&globalobjects[venvindex]
 
  
 
@@ -824,15 +833,38 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path){
                             removeAtIndex(code, i);
                             i -= 2;
                         }else if(std::any_cast<std::string>(code.at(i+1).data.at(0)) == "object"){
+                            //std::cout << "sjkdfs\n";
                             int objectvenvindex = std::any_cast<int>(code.at(i+1).data.at(1));
-                            Venv* objectvenv = &venv->objects[objectvenvindex];
+                            Venv* objectvenv = &globalobjects.at(objectvenvindex);
                             if (!objectvenv->operatorMULT.init){
-                                print("ERROR at " + std::any_cast<std::string>(code.at(i+2).data.at(2)) + ": class type " + std::any_cast<std::string>(code.at(i+1).data.at(2)) + " does not support multiplicatiopn!", PRINT_WHITE, PRINT_ERROR);
+                                print("ERROR at " + std::any_cast<std::string>(code.at(i+1).data.at(3)) + ": class type " + std::any_cast<std::string>(code.at(i+1).data.at(2)) + " does not support multiplicatiopn!", PRINT_WHITE, PRINT_ERROR);
                                 freedlibs();
                                 exit(-1);
                             }
-                            std::vector<Token> code = std::any_cast<std::vector<Token>>(objectvenv->operatorMULT.data[0]);
+                            std::vector<Token> code_ = std::any_cast<std::vector<Token>>(objectvenv->operatorMULT.data[0]);
                             std::vector<std::vector<Token>> argvector = std::any_cast<std::vector<std::vector<Token>>>(objectvenv->operatorMULT.data[1]);
+                            int last_var_index = objectvenv->vars.size();
+                            int add_args_len = 0;
+
+                            for (std::vector<Token> arg_: argvector){
+                                interpret(arg_, objectvenv, path);
+                                add_args_len++;
+                            }
+
+                            if (add_args_len > 0){
+                                objectvenv->vars.at(last_var_index).data = code.at(i-1); // set the first var equal to the other multiplied num
+                            }
+
+                            interpret(code_, objectvenv, path);
+
+                            std::vector<Var*> venvvars = getvars(venv);
+                            code[i-1] = venvvars.at(varinlistindex(venvvars, "Function_result_return_value"))->data;
+                            // about 200 lines up there is almost the same code for functions.... try to fix it 
+
+                            removeAtIndex(code, i+1);
+                            removeAtIndex(code, i);
+                            i -= 2;
+                            // idk maybe test this shit
 
                         }else{
                             print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Not implomented yet!", PRINT_WHITE, PRINT_ERROR);
@@ -856,6 +888,47 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path){
                             freedlibs();
                             exit(-1);
                         }
+                    }else if(std::any_cast<std::string>(code.at(i-1).data.at(0)) == "object"){
+                        //std::cout << "sdfs " << std::any_cast<std::string>(code.at(i-1).data.at(2)) << "\n";
+                        int objectvenvindex = std::any_cast<int>(code.at(i-1).data.at(1));
+                        Venv* objectvenv = &globalobjects.at(objectvenvindex);
+                        //std::cout << "sdfgdsf\n";
+                        if (!objectvenv->operatorMULT.init){
+                            print("ERROR at " + std::any_cast<std::string>(code.at(i-1).data.at(3)) + ": class type " + std::any_cast<std::string>(code.at(i-1).data.at(2)) + " does not support multiplicatiopn!", PRINT_WHITE, PRINT_ERROR);
+                            freedlibs();
+                            exit(-1);
+                        }
+                        std::vector<Token> code_ = std::any_cast<std::vector<Token>>(objectvenv->operatorMULT.data[0]);
+                        std::vector<std::vector<Token>> argvector = std::any_cast<std::vector<std::vector<Token>>>(objectvenv->operatorMULT.data[1]);
+                        int last_var_index = objectvenv->vars.size();
+                        int add_args_len = 0;
+
+                        for (std::vector<Token> arg_: argvector){
+                            interpret(arg_, objectvenv, path);
+                            add_args_len++;
+                        }
+
+                        if (add_args_len > 0){
+                            //std::cout << std::any_cast<std::string>(code.at(i+1).data.at(2)) << '\n';
+                            objectvenv->vars.at(last_var_index).data = code.at(i+1); // set the first var equal to the other multiplied num
+                        }
+
+                        //std::cout << "sjkdfs\n";
+                        //std::cout << "objectvenv addr: " << objectvenv << "\n";
+
+                        
+
+                        interpret(code_, objectvenv, path);
+                        //std::cout << "ksdfghskdfhgsdfg\n";
+                        
+                        std::vector<Var*> venvvars = getvars(venv);
+                        code[i-1] = venvvars.at(varinlistindex(venvvars, "Function_result_return_value"))->data;
+
+                        // about 200 lines up there is almost the same code for functions.... try to fix it 
+                        removeAtIndex(code, i+1);
+                        removeAtIndex(code, i);
+                        i -= 2;
+                        // idk maybe test this shit
                     }else{
                         print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Not implomented yet!", PRINT_WHITE, PRINT_ERROR);
                         //std::cerr << "Not implemented yet!";
@@ -3073,7 +3146,7 @@ void interpret(std::vector<Token> code, Venv* venv, std::string path){
                             exit(-1);
                         }
                     }else if(std::any_cast<std::string>(code.at(i-1).data.at(0)) == "keyword"){
-                        std::cout << std::any_cast<std::string>(code.at(i-1).data.at(1)) << "\n";
+                        //std::cout << std::any_cast<std::string>(code.at(i-1).data.at(1)) << "\n";
                         if (!(isIndexInBounds(code, i-2) && std::any_cast<std::string>(code.at(i-2).data.at(0)) == "word")){
                             print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Expected var name before '='!", PRINT_WHITE, PRINT_ERROR);
                             //print("ERROR: Expected var name before '='.", PRINT_WHITE, PRINT_ERROR);
@@ -3234,7 +3307,7 @@ void interpret(std::vector<Token> code, Venv* venv, std::string path){
                     exit(-1);
                 }
                 int objectvenvindex = std::any_cast<int>(objectToken.data[1]);
-                Venv* objectvenv = &venv->objects[objectvenvindex];
+                Venv* objectvenv = &globalobjects[objectvenvindex];
 
                 //std::cout << "venv pointer: " << objectvenv << "\n";
 
