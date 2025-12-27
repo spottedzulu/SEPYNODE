@@ -832,7 +832,7 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path){
                             removeAtIndex(code, i+1);
                             removeAtIndex(code, i);
                             i -= 2;
-                        }else if(std::any_cast<std::string>(code.at(i+1).data.at(0)) == "object"){
+                        }else if(std::any_cast<std::string>(code.at(i+1).data.at(0)) == "object"){//for my future self or anyone interested to spend his time please test this case
                             //std::cout << "sjkdfs\n";
                             int objectvenvindex = std::any_cast<int>(code.at(i+1).data.at(1));
                             Venv* objectvenv = &globalobjects.at(objectvenvindex);
@@ -911,6 +911,46 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path){
                         if (add_args_len > 0){
                             //std::cout << std::any_cast<std::string>(code.at(i+1).data.at(2)) << '\n';
                             objectvenv->vars.at(last_var_index).data = code.at(i+1); // set the first var equal to the other multiplied num
+                        }
+
+                        //std::cout << "sjkdfs\n";
+                        //std::cout << "objectvenv addr: " << objectvenv << "\n";
+
+                        
+
+                        interpret(code_, objectvenv, path);
+                        //std::cout << "ksdfghskdfhgsdfg\n";
+                        
+                        std::vector<Var*> venvvars = getvars(venv);
+                        code[i-1] = venvvars.at(varinlistindex(venvvars, "Function_result_return_value"))->data;
+
+                        // about 200 lines up there is almost the same code for functions.... try to fix it 
+                        removeAtIndex(code, i+1);
+                        removeAtIndex(code, i);
+                        i -= 2;
+                        // idk maybe test this shit
+                    }else if (std::any_cast<std::string>(code.at(i+1).data.at(0)) == "object"){
+                        int objectvenvindex = std::any_cast<int>(code.at(i+1).data.at(1));
+                        Venv* objectvenv = &globalobjects.at(objectvenvindex);
+                        //std::cout << "sdfgdsf\n";
+                        if (!objectvenv->operatorMULT.init){
+                            print("ERROR at " + std::any_cast<std::string>(code.at(i+1).data.at(3)) + ": class type " + std::any_cast<std::string>(code.at(i+1).data.at(2)) + " does not support multiplicatiopn!", PRINT_WHITE, PRINT_ERROR);
+                            freedlibs();
+                            exit(-1);
+                        }
+                        std::vector<Token> code_ = std::any_cast<std::vector<Token>>(objectvenv->operatorMULT.data[0]);
+                        std::vector<std::vector<Token>> argvector = std::any_cast<std::vector<std::vector<Token>>>(objectvenv->operatorMULT.data[1]);
+                        int last_var_index = objectvenv->vars.size();
+                        int add_args_len = 0;
+
+                        for (std::vector<Token> arg_: argvector){
+                            interpret(arg_, objectvenv, path);
+                            add_args_len++;
+                        }
+
+                        if (add_args_len > 0){
+                            //std::cout << std::any_cast<std::string>(code.at(i+1).data.at(2)) << '\n';
+                            objectvenv->vars.at(last_var_index).data = code.at(i-1); // set the first var equal to the other multiplied num
                         }
 
                         //std::cout << "sjkdfs\n";
@@ -3499,22 +3539,5 @@ int main(int argc, char *argv[]){
         std::cout << "\ntime: " << std::fixed << std::setprecision(6) << ((std::chrono::duration<double>)(end-start)).count() << "s\n";
     }
     
-
-
-    //std::vector<Token> tokens;
-    //Token token;
-    //token.data = "0.1";
-    //token.type = "int";
-    //tokens.push_back(token);
-    //token.data = "+";
-    //token.type = "keyword";
-    //tokens.push_back(token);
-    //token.data = "0.2";
-    //token.type = "int";
-    //tokens.push_back(token);
-
-
-    //std::cout << eval(code, Venv()).data << "\n";
-    //std::cout << "kjld\n";
     exit(0);
 }
