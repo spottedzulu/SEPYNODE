@@ -816,79 +816,80 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path){
         if (std::any_cast<std::string>(code.at(i).data.at(0)) == "keyword"){
             if (std::any_cast<std::string>(code.at(i).data.at(1)) == "*"){
                 if (isIndexInBounds(code, i-1) && isIndexInBounds(code, i+1)){
-                    if (std::any_cast<std::string>(code.at(i-1).data.at(0)) == "int"){
-                        if (std::any_cast<std::string>(code.at(i+1).data.at(0)) == "int"){
-                            code.at(i-1).data.at(1) = std::to_string(std::stof(std::any_cast<std::string>(code.at(i-1).data.at(1)))*std::stof(std::any_cast<std::string>(code.at(i+1).data.at(1))));
-                            removeAtIndex(code, i+1);
-                            removeAtIndex(code, i);
-                            i -= 2;
-                        }else if(std::any_cast<std::string>(code.at(i+1).data.at(0)) == "str"){
-                            std::string strout = "";
-                            for (int i = 0;i != std::stoi(std::any_cast<std::string>(code.at(i-1).data.at(1)));i++){
-                                strout += std::any_cast<std::string>(code.at(i+1).data.at(1));
-                            }
-                            code.at(i-1).data.at(1) = strout;
-                            code.at(i-1).data.at(0) = (std::string)"str";
-                            removeAtIndex(code, i+1);
-                            removeAtIndex(code, i);
-                            i -= 2;
-                        }else if(std::any_cast<std::string>(code.at(i+1).data.at(0)) == "object"){//for my future self or anyone interested to spend his time please test this case
-                            //std::cout << "sjkdfs\n";
-                            int objectvenvindex = std::any_cast<int>(code.at(i+1).data.at(1));
-                            Venv* objectvenv = &globalobjects.at(objectvenvindex);
-                            if (!objectvenv->operatorMULT.init){
-                                print("ERROR at " + std::any_cast<std::string>(code.at(i+1).data.at(3)) + ": class type " + std::any_cast<std::string>(code.at(i+1).data.at(2)) + " does not support multiplicatiopn!", PRINT_WHITE, PRINT_ERROR);
-                                freedlibs();
-                                exit(-1);
-                            }
-                            std::vector<Token> code_ = std::any_cast<std::vector<Token>>(objectvenv->operatorMULT.data[0]);
-                            std::vector<std::vector<Token>> argvector = std::any_cast<std::vector<std::vector<Token>>>(objectvenv->operatorMULT.data[1]);
-                            int last_var_index = objectvenv->vars.size();
-                            int add_args_len = 0;
-
-                            for (std::vector<Token> arg_: argvector){
-                                interpret(arg_, objectvenv, path);
-                                add_args_len++;
-                            }
-
-                            if (add_args_len > 0){
-                                objectvenv->vars.at(last_var_index).data = code.at(i-1); // set the first var equal to the other multiplied num
-                            }
-
-                            interpret(code_, objectvenv, path);
-
-                            std::vector<Var*> venvvars = getvars(venv);
-                            code[i-1] = venvvars.at(varinlistindex(venvvars, "Function_result_return_value"))->data;
-                            // about 200 lines up there is almost the same code for functions.... try to fix it 
-
-                            removeAtIndex(code, i+1);
-                            removeAtIndex(code, i);
-                            i -= 2;
-                            // idk maybe test this shit
-
-                        }else{
-                            print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Not implomented yet!", PRINT_WHITE, PRINT_ERROR);
-                            //std::cerr << "Not implemented yet!";
-                            freedlibs();
-                            exit(-1);
-                        }
-                    }else if(std::any_cast<std::string>(code.at(i-1).data.at(0)) == "str"){
-                        if (std::any_cast<std::string>(code.at(i+1).data.at(0)) == "int"){
-                            std::string strout = "";
-                            for (int i = 0;i != std::stoi(std::any_cast<std::string>(code.at(i+1).data.at(1)));i++){
-                                strout += std::any_cast<std::string>(code.at(i-1).data.at(1));
-                            }
-                            code.at(i-1).data.at(1) = strout;
-                            removeAtIndex(code, i+1);
-                            removeAtIndex(code, i);
-                            i -= 2;
-                        }else{
-                            print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Not implomented yet!", PRINT_WHITE, PRINT_ERROR);
-                            //std::cerr << "Not implemented yet!";
-                            freedlibs();
-                            exit(-1);
-                        }
-                    }else if(std::any_cast<std::string>(code.at(i-1).data.at(0)) == "object"){
+                    //if (std::any_cast<std::string>(code.at(i-1).data.at(0)) == "int"){
+                    //    if (std::any_cast<std::string>(code.at(i+1).data.at(0)) == "int"){
+                    //        code.at(i-1).data.at(1) = std::to_string(std::stof(std::any_cast<std::string>(code.at(i-1).data.at(1)))*std::stof(std::any_cast<std::string>(code.at(i+1).data.at(1))));
+                    //        removeAtIndex(code, i+1);
+                    //        removeAtIndex(code, i);
+                    //        i -= 2;
+                    //    }else if(std::any_cast<std::string>(code.at(i+1).data.at(0)) == "str"){
+                    //        std::string strout = "";
+                    //        for (int i = 0;i != std::stoi(std::any_cast<std::string>(code.at(i-1).data.at(1)));i++){
+                    //            strout += std::any_cast<std::string>(code.at(i+1).data.at(1));
+                    //        }
+                    //        code.at(i-1).data.at(1) = strout;
+                    //        code.at(i-1).data.at(0) = (std::string)"str";
+                    //        removeAtIndex(code, i+1);
+                    //        removeAtIndex(code, i);
+                    //        i -= 2;
+                    //    }else if(std::any_cast<std::string>(code.at(i+1).data.at(0)) == "object"){//for my future self or anyone interested to spend his time please test this case
+                    //        //std::cout << "sjkdfs\n";
+                    //        int objectvenvindex = std::any_cast<int>(code.at(i+1).data.at(1));
+                    //        Venv* objectvenv = &globalobjects.at(objectvenvindex);
+                    //        if (!objectvenv->operatorMULT.init){
+                    //            print("ERROR at " + std::any_cast<std::string>(code.at(i+1).data.at(3)) + ": class type " + std::any_cast<std::string>(code.at(i+1).data.at(2)) + " does not support multiplicatiopn!", PRINT_WHITE, PRINT_ERROR);
+                    //            freedlibs();
+                    //            exit(-1);
+                    //        }
+                    //        std::vector<Token> code_ = std::any_cast<std::vector<Token>>(objectvenv->operatorMULT.data[0]);
+                    //        std::vector<std::vector<Token>> argvector = std::any_cast<std::vector<std::vector<Token>>>(objectvenv->operatorMULT.data[1]);
+                    //        int last_var_index = objectvenv->vars.size();
+                    //        int add_args_len = 0;
+//
+                    //        for (std::vector<Token> arg_: argvector){
+                    //            interpret(arg_, objectvenv, path);
+                    //            add_args_len++;
+                    //        }
+//
+                    //        if (add_args_len > 0){
+                    //            objectvenv->vars.at(last_var_index).data = code.at(i-1); // set the first var equal to the other multiplied num
+                    //        }
+//
+                    //        interpret(code_, objectvenv, path);
+//
+                    //        std::vector<Var*> venvvars = getvars(venv);
+                    //        code[i-1] = venvvars.at(varinlistindex(venvvars, "Function_result_return_value"))->data;
+                    //        // about 200 lines up there is almost the same code for functions.... try to fix it 
+//
+                    //        removeAtIndex(code, i+1);
+                    //        removeAtIndex(code, i);
+                    //        i -= 2;
+                    //        // idk maybe test this shit
+//
+                    //    }else{
+                    //        print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Not implomented yet!", PRINT_WHITE, PRINT_ERROR);
+                    //        //std::cerr << "Not implemented yet!";
+                    //        freedlibs();
+                    //        exit(-1);
+                    //    }
+                    //}else if(std::any_cast<std::string>(code.at(i-1).data.at(0)) == "str"){
+                    //    if (std::any_cast<std::string>(code.at(i+1).data.at(0)) == "int"){
+                    //        std::string strout = "";
+                    //        for (int i = 0;i != std::stoi(std::any_cast<std::string>(code.at(i+1).data.at(1)));i++){
+                    //            strout += std::any_cast<std::string>(code.at(i-1).data.at(1));
+                    //        }
+                    //        code.at(i-1).data.at(1) = strout;
+                    //        removeAtIndex(code, i+1);
+                    //        removeAtIndex(code, i);
+                    //        i -= 2;
+                    //    }else{
+                    //        print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Not implomented yet!", PRINT_WHITE, PRINT_ERROR);
+                    //        //std::cerr << "Not implemented yet!";
+                    //        freedlibs();
+                    //        exit(-1);
+                    //    }
+                    //}else 
+                    if(std::any_cast<std::string>(code.at(i-1).data.at(0)) == "object"){
                         //std::cout << "sdfs " << std::any_cast<std::string>(code.at(i-1).data.at(2)) << "\n";
                         int objectvenvindex = std::any_cast<int>(code.at(i-1).data.at(1));
                         Venv* objectvenv = &globalobjects.at(objectvenvindex);
@@ -932,7 +933,6 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path){
                     }else if (std::any_cast<std::string>(code.at(i+1).data.at(0)) == "object"){
                         int objectvenvindex = std::any_cast<int>(code.at(i+1).data.at(1));
                         Venv* objectvenv = &globalobjects.at(objectvenvindex);
-                        //std::cout << "sdfgdsf\n";
                         if (!objectvenv->operatorMULT.init){
                             print("ERROR at " + std::any_cast<std::string>(code.at(i+1).data.at(3)) + ": class type " + std::any_cast<std::string>(code.at(i+1).data.at(2)) + " does not support multiplicatiopn!", PRINT_WHITE, PRINT_ERROR);
                             freedlibs();
@@ -949,8 +949,114 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path){
                         }
 
                         if (add_args_len > 0){
-                            //std::cout << std::any_cast<std::string>(code.at(i+1).data.at(2)) << '\n';
                             objectvenv->vars.at(last_var_index).data = code.at(i-1); // set the first var equal to the other multiplied num
+                        }
+
+                        
+
+                        interpret(code_, objectvenv, path);
+                        
+                        std::vector<Var*> venvvars = getvars(venv);
+                        code[i-1] = venvvars.at(varinlistindex(venvvars, "Function_result_return_value"))->data;
+
+                        // about 200 lines up there is almost the same code for functions.... try to fix it 
+                        removeAtIndex(code, i+1);
+                        removeAtIndex(code, i);
+                        i -= 2;
+                        // idk maybe test this shit
+                    }else if (std::any_cast<std::string>(code.at(i-1).data.at(0)) == "int"){
+                        if (std::any_cast<std::string>(code.at(i+1).data.at(0)) == "int"){
+                            code.at(i-1).data.at(1) = std::to_string(std::stof(std::any_cast<std::string>(code.at(i-1).data.at(1)))*std::stof(std::any_cast<std::string>(code.at(i+1).data.at(1))));
+                            removeAtIndex(code, i+1);
+                            removeAtIndex(code, i);
+                            i -= 2;
+                        }else if(std::any_cast<std::string>(code.at(i+1).data.at(0)) == "str"){
+                            std::string strout = "";
+                            for (int i = 0;i != std::stoi(std::any_cast<std::string>(code.at(i-1).data.at(1)));i++){
+                                strout += std::any_cast<std::string>(code.at(i+1).data.at(1));
+                            }
+                            code.at(i-1).data.at(1) = strout;
+                            code.at(i-1).data.at(0) = (std::string)"str";
+                            removeAtIndex(code, i+1);
+                            removeAtIndex(code, i);
+                            i -= 2;
+                        }
+                    }else if(std::any_cast<std::string>(code.at(i-1).data.at(0)) == "str"){
+                        if (std::any_cast<std::string>(code.at(i+1).data.at(0)) == "int"){
+                            std::string strout = "";
+                            for (int i = 0;i != std::stoi(std::any_cast<std::string>(code.at(i+1).data.at(1)));i++){
+                                strout += std::any_cast<std::string>(code.at(i-1).data.at(1));
+                            }
+                            code.at(i-1).data.at(1) = strout;
+                            removeAtIndex(code, i+1);
+                            removeAtIndex(code, i);
+                            i -= 2;
+                        }else{
+                            print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Not implomented yet!", PRINT_WHITE, PRINT_ERROR);
+                            //std::cerr << "Not implemented yet!";
+                            freedlibs();
+                            exit(-1);
+                        }
+                    }else{
+                        print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Not implomented yet!", PRINT_WHITE, PRINT_ERROR);
+                        //std::cerr << "Not implemented yet!";
+                        freedlibs();
+                        exit(-1);
+                    }
+                }
+            }else if (std::any_cast<std::string>(code.at(i).data.at(1)) == "/"){
+                if (isIndexInBounds(code, i-1) && isIndexInBounds(code, i+1)){
+                    //if (std::any_cast<std::string>(code.at(i-1).data.at(0)) == "int"){
+                    //    if (std::any_cast<std::string>(code.at(i+1).data.at(0)) == "int"){
+                    //        code.at(i-1).data.at(1) = std::to_string(std::stof(std::any_cast<std::string>(code.at(i-1).data.at(1)))/std::stof(std::any_cast<std::string>(code.at(i+1).data.at(1))));
+                    //        removeAtIndex(code, i+1);
+                    //        removeAtIndex(code, i);
+                    //        i -= 2;
+                    //    }else if(std::any_cast<std::string>(code.at(i+1).data.at(0)) == "str"){
+                    //        print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Strings don't support division!", PRINT_WHITE, PRINT_ERROR);
+                    //        //std::cerr << "str don't support division";
+                    //        freedlibs();
+                    //        exit(-1);
+                    //    }else{
+                    //        print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Not implomented yet!", PRINT_WHITE, PRINT_ERROR);
+                    //        //std::cerr << "Not implemented yet!";
+                    //        freedlibs();
+                    //        exit(-1);
+                    //    }
+                    //}else if(std::any_cast<std::string>(code.at(i-1).data.at(0)) == "str"){
+                    //        print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Strings don't support division!", PRINT_WHITE, PRINT_ERROR);
+                    //        //std::cerr << "str don't support division";
+                    //        freedlibs();
+                    //        exit(-1);
+                    //}else{
+                    //    print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Not implomented yet!", PRINT_WHITE, PRINT_ERROR);
+                    //    //std::cerr << "Not implemented yet!";
+                    //    freedlibs();
+                    //    exit(-1);
+                    //}
+                    if(std::any_cast<std::string>(code.at(i-1).data.at(0)) == "object"){
+                        //std::cout << "sdfs " << std::any_cast<std::string>(code.at(i-1).data.at(2)) << "\n";
+                        int objectvenvindex = std::any_cast<int>(code.at(i-1).data.at(1));
+                        Venv* objectvenv = &globalobjects.at(objectvenvindex);
+                        //std::cout << "sdfgdsf\n";
+                        if (!objectvenv->operatorDIV.init){
+                            print("ERROR at " + std::any_cast<std::string>(code.at(i-1).data.at(3)) + ": class type " + std::any_cast<std::string>(code.at(i-1).data.at(2)) + " does not support division!", PRINT_WHITE, PRINT_ERROR);
+                            freedlibs();
+                            exit(-1);
+                        }
+                        std::vector<Token> code_ = std::any_cast<std::vector<Token>>(objectvenv->operatorDIV.data[0]);
+                        std::vector<std::vector<Token>> argvector = std::any_cast<std::vector<std::vector<Token>>>(objectvenv->operatorDIV.data[1]);
+                        int last_var_index = objectvenv->vars.size();
+                        int add_args_len = 0;
+
+                        for (std::vector<Token> arg_: argvector){
+                            interpret(arg_, objectvenv, path);
+                            add_args_len++;
+                        }
+
+                        if (add_args_len > 0){
+                            //std::cout << std::any_cast<std::string>(code.at(i+1).data.at(2)) << '\n';
+                            objectvenv->vars.at(last_var_index).data = code.at(i+1); // set the first var equal to the other div num
                         }
 
                         //std::cout << "sjkdfs\n";
@@ -969,37 +1075,60 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path){
                         removeAtIndex(code, i);
                         i -= 2;
                         // idk maybe test this shit
-                    }else{
-                        print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Not implomented yet!", PRINT_WHITE, PRINT_ERROR);
-                        //std::cerr << "Not implemented yet!";
-                        freedlibs();
-                        exit(-1);
-                    }
-                }
-            }else if (std::any_cast<std::string>(code.at(i).data.at(1)) == "/"){
-                if (isIndexInBounds(code, i-1) && isIndexInBounds(code, i+1)){
-                    if (std::any_cast<std::string>(code.at(i-1).data.at(0)) == "int"){
+                    }else if (std::any_cast<std::string>(code.at(i+1).data.at(0)) == "object"){
+                        int objectvenvindex = std::any_cast<int>(code.at(i+1).data.at(1));
+                        Venv* objectvenv = &globalobjects.at(objectvenvindex);
+                        if (!objectvenv->operatorDIV.init){
+                            print("ERROR at " + std::any_cast<std::string>(code.at(i+1).data.at(3)) + ": class type " + std::any_cast<std::string>(code.at(i+1).data.at(2)) + " does not support division!", PRINT_WHITE, PRINT_ERROR);
+                            freedlibs();
+                            exit(-1);
+                        }
+                        std::vector<Token> code_ = std::any_cast<std::vector<Token>>(objectvenv->operatorDIV.data[0]);
+                        std::vector<std::vector<Token>> argvector = std::any_cast<std::vector<std::vector<Token>>>(objectvenv->operatorDIV.data[1]);
+                        int last_var_index = objectvenv->vars.size();
+                        int add_args_len = 0;
+
+                        for (std::vector<Token> arg_: argvector){
+                            interpret(arg_, objectvenv, path);
+                            add_args_len++;
+                        }
+
+                        if (add_args_len > 0){
+                            objectvenv->vars.at(last_var_index).data = code.at(i-1); // set the first var equal to the other div num
+                        }
+                        interpret(code_, objectvenv, path);
+                        
+                        std::vector<Var*> venvvars = getvars(venv);
+                        code[i-1] = venvvars.at(varinlistindex(venvvars, "Function_result_return_value"))->data;
+
+                        // about 200 lines up there is almost the same code for functions.... try to fix it 
+                        removeAtIndex(code, i+1);
+                        removeAtIndex(code, i);
+                        i -= 2;
+                        // idk maybe test this shit
+                    }else if (std::any_cast<std::string>(code.at(i-1).data.at(0)) == "int"){
                         if (std::any_cast<std::string>(code.at(i+1).data.at(0)) == "int"){
-                            code.at(i-1).data.at(1) = std::to_string(std::stof(std::any_cast<std::string>(code.at(i-1).data.at(1)))/std::stof(std::any_cast<std::string>(code.at(i+1).data.at(1))));
+                            float num2 = std::stof(std::any_cast<std::string>(code.at(i+1).data.at(1)));
+                            if (num2 == 0){
+                                print("MATH ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": dision by zero error!", PRINT_WHITE, PRINT_ERROR);
+                                freedlibs();
+                                exit(-1);
+                            }
+                            code.at(i-1).data.at(1) = std::to_string(std::stof(std::any_cast<std::string>(code.at(i-1).data.at(1)))/num2);
                             removeAtIndex(code, i+1);
                             removeAtIndex(code, i);
                             i -= 2;
                         }else if(std::any_cast<std::string>(code.at(i+1).data.at(0)) == "str"){
-                            print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Strings don't support division!", PRINT_WHITE, PRINT_ERROR);
-                            //std::cerr << "str don't support division";
-                            freedlibs();
-                            exit(-1);
-                        }else{
-                            print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Not implomented yet!", PRINT_WHITE, PRINT_ERROR);
+                            print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": strings cannot be used in divition!", PRINT_WHITE, PRINT_ERROR);
                             //std::cerr << "Not implemented yet!";
                             freedlibs();
                             exit(-1);
                         }
                     }else if(std::any_cast<std::string>(code.at(i-1).data.at(0)) == "str"){
-                            print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Strings don't support division!", PRINT_WHITE, PRINT_ERROR);
-                            //std::cerr << "str don't support division";
-                            freedlibs();
-                            exit(-1);
+                        print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": strings cannot be used in division!", PRINT_WHITE, PRINT_ERROR);
+                        //std::cerr << "Not implemented yet!";
+                        freedlibs();
+                        exit(-1);
                     }else{
                         print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Not implomented yet!", PRINT_WHITE, PRINT_ERROR);
                         //std::cerr << "Not implemented yet!";
@@ -1012,7 +1141,85 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path){
             {
                 if (isIndexInBounds(code, i - 1) && isIndexInBounds(code, i + 1))
                 {
-                    if (std::any_cast<std::string>(code.at(i - 1).data.at(0)) == "int")
+                    if (std::any_cast<std::string>(code.at(i - 1).data.at(0)) == "object"){
+                        int objectvenvindex = std::any_cast<int>(code.at(i-1).data.at(1));
+                        Venv* objectvenv = &globalobjects.at(objectvenvindex);
+                        if (!objectvenv->operatorMOD.init){
+                            print("ERROR at " + std::any_cast<std::string>(code.at(i-1).data.at(3)) + ": class type " + std::any_cast<std::string>(code.at(i-1).data.at(2)) + " does not support modulo!", PRINT_WHITE, PRINT_ERROR);
+                            freedlibs();
+                            exit(-1);
+                        }
+                        std::vector<Token> code_ = std::any_cast<std::vector<Token>>(objectvenv->operatorMOD.data[0]);
+                        std::vector<std::vector<Token>> argvector = std::any_cast<std::vector<std::vector<Token>>>(objectvenv->operatorMOD.data[1]);
+                        int last_var_index = objectvenv->vars.size();
+                        int add_args_len = 0;
+
+                        for (std::vector<Token> arg_: argvector){
+                            interpret(arg_, objectvenv, path);
+                            add_args_len++;
+                        }
+
+                        if (add_args_len > 0){
+                            //std::cout << std::any_cast<std::string>(code.at(i+1).data.at(2)) << '\n';
+                            objectvenv->vars.at(last_var_index).data = code.at(i+1); // set the first var equal to the other modulo num
+                        }
+
+                        //std::cout << "sjkdfs\n";
+                        //std::cout << "objectvenv addr: " << objectvenv << "\n";
+
+                        
+
+                        interpret(code_, objectvenv, path);
+                        //std::cout << "ksdfghskdfhgsdfg\n";
+                        
+                        std::vector<Var*> venvvars = getvars(venv);
+                        code[i-1] = venvvars.at(varinlistindex(venvvars, "Function_result_return_value"))->data;
+
+                        // about 200 lines up there is almost the same code for functions.... try to fix it 
+                        removeAtIndex(code, i+1);
+                        removeAtIndex(code, i);
+                        i -= 2;
+                        // idk maybe test this shit
+                    }else if (std::any_cast<std::string>(code.at(i+1).data.at(0)) == "object"){
+                        int objectvenvindex = std::any_cast<int>(code.at(i+1).data.at(1));
+                        Venv* objectvenv = &globalobjects.at(objectvenvindex);
+                        if (!objectvenv->operatorMOD.init){
+                            print("ERROR at " + std::any_cast<std::string>(code.at(i+1).data.at(3)) + ": class type " + std::any_cast<std::string>(code.at(i+1).data.at(2)) + " does not support modulo!", PRINT_WHITE, PRINT_ERROR);
+                            freedlibs();
+                            exit(-1);
+                        }
+                        std::vector<Token> code_ = std::any_cast<std::vector<Token>>(objectvenv->operatorMOD.data[0]);
+                        std::vector<std::vector<Token>> argvector = std::any_cast<std::vector<std::vector<Token>>>(objectvenv->operatorMOD.data[1]);
+                        int last_var_index = objectvenv->vars.size();
+                        int add_args_len = 0;
+
+                        for (std::vector<Token> arg_: argvector){
+                            interpret(arg_, objectvenv, path);
+                            add_args_len++;
+                        }
+
+                        if (add_args_len > 0){
+                            //std::cout << std::any_cast<std::string>(code.at(i+1).data.at(2)) << '\n';
+                            objectvenv->vars.at(last_var_index).data = code.at(i-1); // set the first var equal to the other modulo num
+                        }
+
+                        //std::cout << "sjkdfs\n";
+                        //std::cout << "objectvenv addr: " << objectvenv << "\n";
+
+                        
+
+                        interpret(code_, objectvenv, path);
+                        //std::cout << "ksdfghskdfhgsdfg\n";
+                        
+                        std::vector<Var*> venvvars = getvars(venv);
+                        code[i-1] = venvvars.at(varinlistindex(venvvars, "Function_result_return_value"))->data;
+
+                        // about 200 lines up there is almost the same code for functions.... try to fix it 
+                        removeAtIndex(code, i+1);
+                        removeAtIndex(code, i);
+                        i -= 2;
+                        // idk maybe test this shit
+                    }else if (std::any_cast<std::string>(code.at(i - 1).data.at(0)) == "int")
                     {
                         if (std::any_cast<std::string>(code.at(i + 1).data.at(0)) == "int")
                         {
@@ -1065,7 +1272,85 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path){
         if (std::any_cast<std::string>(code.at(i).data.at(0)) == "keyword"){
             if(std::any_cast<std::string>(code.at(i).data.at(1)) == "+"){
                 if (isIndexInBounds(code, i-1) && isIndexInBounds(code, i+1)){
-                    if (std::any_cast<std::string>(code.at(i-1).data.at(0)) == "int"){
+                    if (std::any_cast<std::string>(code.at(i-1).data.at(0)) == "object"){
+                        int objectvenvindex = std::any_cast<int>(code.at(i-1).data.at(1));
+                        Venv* objectvenv = &globalobjects.at(objectvenvindex);
+                        if (!objectvenv->operatorPLUS.init){
+                            print("ERROR at " + std::any_cast<std::string>(code.at(i-1).data.at(3)) + ": class type " + std::any_cast<std::string>(code.at(i-1).data.at(2)) + " does not support addition!", PRINT_WHITE, PRINT_ERROR);
+                            freedlibs();
+                            exit(-1);
+                        }
+                        std::vector<Token> code_ = std::any_cast<std::vector<Token>>(objectvenv->operatorPLUS.data[0]);
+                        std::vector<std::vector<Token>> argvector = std::any_cast<std::vector<std::vector<Token>>>(objectvenv->operatorPLUS.data[1]);
+                        int last_var_index = objectvenv->vars.size();
+                        int add_args_len = 0;
+
+                        for (std::vector<Token> arg_: argvector){
+                            interpret(arg_, objectvenv, path);
+                            add_args_len++;
+                        }
+
+                        if (add_args_len > 0){
+                            //std::cout << std::any_cast<std::string>(code.at(i+1).data.at(2)) << '\n';
+                            objectvenv->vars.at(last_var_index).data = code.at(i+1); // set the first var equal to the other addition num
+                        }
+
+                        //std::cout << "sjkdfs\n";
+                        //std::cout << "objectvenv addr: " << objectvenv << "\n";
+
+                        
+
+                        interpret(code_, objectvenv, path);
+                        //std::cout << "ksdfghskdfhgsdfg\n";
+                        
+                        std::vector<Var*> venvvars = getvars(venv);
+                        code[i-1] = venvvars.at(varinlistindex(venvvars, "Function_result_return_value"))->data;
+
+                        // about 200 lines up there is almost the same code for functions.... try to fix it 
+                        removeAtIndex(code, i+1);
+                        removeAtIndex(code, i);
+                        i -= 2;
+                        // idk maybe test this shit
+                    }else if (std::any_cast<std::string>(code.at(i+1).data.at(0)) == "object"){
+                        int objectvenvindex = std::any_cast<int>(code.at(i+1).data.at(1));
+                        Venv* objectvenv = &globalobjects.at(objectvenvindex);
+                        if (!objectvenv->operatorPLUS.init){
+                            print("ERROR at " + std::any_cast<std::string>(code.at(i+1).data.at(3)) + ": class type " + std::any_cast<std::string>(code.at(i+1).data.at(2)) + " does not support addition!", PRINT_WHITE, PRINT_ERROR);
+                            freedlibs();
+                            exit(-1);
+                        }
+                        std::vector<Token> code_ = std::any_cast<std::vector<Token>>(objectvenv->operatorPLUS.data[0]);
+                        std::vector<std::vector<Token>> argvector = std::any_cast<std::vector<std::vector<Token>>>(objectvenv->operatorPLUS.data[1]);
+                        int last_var_index = objectvenv->vars.size();
+                        int add_args_len = 0;
+
+                        for (std::vector<Token> arg_: argvector){
+                            interpret(arg_, objectvenv, path);
+                            add_args_len++;
+                        }
+
+                        if (add_args_len > 0){
+                            //std::cout << std::any_cast<std::string>(code.at(i+1).data.at(2)) << '\n';
+                            objectvenv->vars.at(last_var_index).data = code.at(i-1); // set the first var equal to the other addition num
+                        }
+
+                        //std::cout << "sjkdfs\n";
+                        //std::cout << "objectvenv addr: " << objectvenv << "\n";
+
+                        
+
+                        interpret(code_, objectvenv, path);
+                        //std::cout << "ksdfghskdfhgsdfg\n";
+                        
+                        std::vector<Var*> venvvars = getvars(venv);
+                        code[i-1] = venvvars.at(varinlistindex(venvvars, "Function_result_return_value"))->data;
+
+                        // about 200 lines up there is almost the same code for functions.... try to fix it 
+                        removeAtIndex(code, i+1);
+                        removeAtIndex(code, i);
+                        i -= 2;
+                        // idk maybe test this shit
+                    }else if (std::any_cast<std::string>(code.at(i-1).data.at(0)) == "int"){
                         if (std::any_cast<std::string>(code.at(i+1).data.at(0)) == "int"){
                             code.at(i-1).data.at(1) = std::to_string(std::stof(std::any_cast<std::string>(code.at(i-1).data.at(1)))+std::stof(std::any_cast<std::string>(code.at(i+1).data.at(1))));
                             removeAtIndex(code, i+1);
@@ -1093,7 +1378,85 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path){
                 }
             }else if(std::any_cast<std::string>(code.at(i).data.at(1)) == "-"){
                 if (isIndexInBounds(code, i-1) && isIndexInBounds(code, i+1)){
-                    if (std::any_cast<std::string>(code.at(i-1).data.at(0)) == "int"){
+                    if(std::any_cast<std::string>(code.at(i-1).data.at(0)) == "object"){
+                        int objectvenvindex = std::any_cast<int>(code.at(i-1).data.at(1));
+                        Venv* objectvenv = &globalobjects.at(objectvenvindex);
+                        if (!objectvenv->operatorMINUS.init){
+                            print("ERROR at " + std::any_cast<std::string>(code.at(i-1).data.at(3)) + ": class type " + std::any_cast<std::string>(code.at(i-1).data.at(2)) + " does not support subtraction!", PRINT_WHITE, PRINT_ERROR);
+                            freedlibs();
+                            exit(-1);
+                        }
+                        std::vector<Token> code_ = std::any_cast<std::vector<Token>>(objectvenv->operatorMINUS.data[0]);
+                        std::vector<std::vector<Token>> argvector = std::any_cast<std::vector<std::vector<Token>>>(objectvenv->operatorMINUS.data[1]);
+                        int last_var_index = objectvenv->vars.size();
+                        int add_args_len = 0;
+
+                        for (std::vector<Token> arg_: argvector){
+                            interpret(arg_, objectvenv, path);
+                            add_args_len++;
+                        }
+
+                        if (add_args_len > 0){
+                            //std::cout << std::any_cast<std::string>(code.at(i+1).data.at(2)) << '\n';
+                            objectvenv->vars.at(last_var_index).data = code.at(i+1); // set the first var equal to the other sub num
+                        }
+
+                        //std::cout << "sjkdfs\n";
+                        //std::cout << "objectvenv addr: " << objectvenv << "\n";
+
+                        
+
+                        interpret(code_, objectvenv, path);
+                        //std::cout << "ksdfghskdfhgsdfg\n";
+                        
+                        std::vector<Var*> venvvars = getvars(venv);
+                        code[i-1] = venvvars.at(varinlistindex(venvvars, "Function_result_return_value"))->data;
+
+                        // about 200 lines up there is almost the same code for functions.... try to fix it 
+                        removeAtIndex(code, i+1);
+                        removeAtIndex(code, i);
+                        i -= 2;
+                        // idk maybe test this shit
+                    }else if (std::any_cast<std::string>(code.at(i+1).data.at(0)) == "object"){
+                        int objectvenvindex = std::any_cast<int>(code.at(i+1).data.at(1));
+                        Venv* objectvenv = &globalobjects.at(objectvenvindex);
+                        if (!objectvenv->operatorMINUS.init){
+                            print("ERROR at " + std::any_cast<std::string>(code.at(i+1).data.at(3)) + ": class type " + std::any_cast<std::string>(code.at(i+1).data.at(2)) + " does not support subtraction!", PRINT_WHITE, PRINT_ERROR);
+                            freedlibs();
+                            exit(-1);
+                        }
+                        std::vector<Token> code_ = std::any_cast<std::vector<Token>>(objectvenv->operatorMINUS.data[0]);
+                        std::vector<std::vector<Token>> argvector = std::any_cast<std::vector<std::vector<Token>>>(objectvenv->operatorMINUS.data[1]);
+                        int last_var_index = objectvenv->vars.size();
+                        int add_args_len = 0;
+
+                        for (std::vector<Token> arg_: argvector){
+                            interpret(arg_, objectvenv, path);
+                            add_args_len++;
+                        }
+
+                        if (add_args_len > 0){
+                            //std::cout << std::any_cast<std::string>(code.at(i+1).data.at(2)) << '\n';
+                            objectvenv->vars.at(last_var_index).data = code.at(i-1); // set the first var equal to the other sub num
+                        }
+
+                        //std::cout << "sjkdfs\n";
+                        //std::cout << "objectvenv addr: " << objectvenv << "\n";
+
+                        
+
+                        interpret(code_, objectvenv, path);
+                        //std::cout << "ksdfghskdfhgsdfg\n";
+                        
+                        std::vector<Var*> venvvars = getvars(venv);
+                        code[i-1] = venvvars.at(varinlistindex(venvvars, "Function_result_return_value"))->data;
+
+                        // about 200 lines up there is almost the same code for functions.... try to fix it 
+                        removeAtIndex(code, i+1);
+                        removeAtIndex(code, i);
+                        i -= 2;
+                        // idk maybe test this shit
+                    }else if (std::any_cast<std::string>(code.at(i-1).data.at(0)) == "int"){
                         if (std::any_cast<std::string>(code.at(i+1).data.at(0)) == "int"){
                             code.at(i-1).data.at(1) = std::to_string(std::stof(std::any_cast<std::string>(code.at(i-1).data.at(1)))-std::stof(std::any_cast<std::string>(code.at(i+1).data.at(1))));
                             removeAtIndex(code, i+1);
@@ -3539,5 +3902,22 @@ int main(int argc, char *argv[]){
         std::cout << "\ntime: " << std::fixed << std::setprecision(6) << ((std::chrono::duration<double>)(end-start)).count() << "s\n";
     }
     
+
+
+    //std::vector<Token> tokens;
+    //Token token;
+    //token.data = "0.1";
+    //token.type = "int";
+    //tokens.push_back(token);
+    //token.data = "+";
+    //token.type = "keyword";
+    //tokens.push_back(token);
+    //token.data = "0.2";
+    //token.type = "int";
+    //tokens.push_back(token);
+
+
+    //std::cout << eval(code, Venv()).data << "\n";
+    //std::cout << "kjld\n";
     exit(0);
 }
