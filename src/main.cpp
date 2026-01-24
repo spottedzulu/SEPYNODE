@@ -4013,20 +4013,25 @@ int main(int argc, char* argv[]) {
 
     std::string folderPath;
 
+//#if defined(_WIN32)
+    //size_t lastSlash = ((std::string)argv[1]).find_last_of("\\/");
+    folderPath = std::filesystem::current_path().string();    //((std::string)argv[1]).substr(0, lastSlash);
+    //std::cout << "path: " << folderPath << "\n";
 #if defined(_WIN32)
-    size_t lastSlash = ((std::string)argv[1]).find_last_of("\\/");
-    folderPath = ((std::string)argv[1]).substr(0, lastSlash);
     if (!SetCurrentDirectoryA(folderPath.c_str())) {
-        std::cerr << "CRITICAL WARNING: Unable to set proper path, file paths are going to fail!" << std::endl;
-        //return 1;
-    }
 #elif defined(__linux__)
-    folderPath = dirname(argv[1]);
     if (chdir(folderPath.c_str()) == 1) {
+#endif
         std::cerr << "CRITICAL WARNING: Unable to set proper path, file paths are going to fail!" << std::endl;
         //return 1;
     }
-#endif
+//#elif defined(__linux__)
+//    folderPath = dirname(argv[1]);
+//    if (chdir(folderPath.c_str()) == 1) {
+//        std::cerr << "CRITICAL WARNING: Unable to set proper path, file paths are going to fail!" << std::endl;
+//        //return 1;
+//    }
+//#endif
 
 
     auto start = std::chrono::high_resolution_clock::now();
