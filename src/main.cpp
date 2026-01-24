@@ -3394,32 +3394,40 @@ void interpret(std::vector<Token> code, Venv* venv, std::string path) {
                         //set path to imported file's path
 
 
-                        std::string folderPath;
                         std::string filename = std::any_cast<std::string>(spnfilename.data[1]);
 
 
-#if defined(_WIN32)
+
                         //size_t lastSlash = ((std::string)std::any_cast<std::string>(spnfilename.data[1])).find_last_of("\\/");
                         //folderPath = ((std::string)std::any_cast<std::string>(spnfilename.data[1])).substr(0, lastSlash);
                         //std::cout << folderPath << "\n";
 
                         std::filesystem::path p(filename);
-                        folderPath = p.parent_path().string();
+                        //folderPath = p.parent_path().string();
+
+                        std::filesystem::path absP = p.is_absolute() ? p : std::filesystem::absolute(p);  // Resolve to absolute
+                        std::filesystem::path parent = absP.parent_path();
+                        std::string folderPath = parent.string();
+
                         //std::cout << folderPath << "\n";
+#if defined(_WIN32)
                         if (!SetCurrentDirectoryA(folderPath.c_str())) {
-                            print("CRITICAL WARNING at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Unablr to set proper path, file paths are going to fail!", PRINT_WHITE, PRINT_ERROR);
+#elif defined(__linux__)
+                        if (chdir(folderPath.c_str()) == 1) {
+#endif
+                            print("CRITICAL WARNING at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Unable to set proper path, file paths are going to fail!", PRINT_WHITE, PRINT_ERROR);
                             //std::cerr << "CRITICAL WARNING: Unable to set proper path, file paths are going to be incorrect!" << std::endl;
                             //exit(-1);
                         }
-#elif defined(__linux__)
-                        std::filesystem::path p(filename);
-                        folderPath = p.parent_path().string();
-                        if (chdir(folderPath.c_str()) == 1) {
-                            print("CRITICAL WARNING at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Unablr to set proper path, file paths are going to fail!", PRINT_WHITE, PRINT_ERROR);
-                            //std::cerr << "CRITICAL WARNING: Unable to set proper path, file paths are going to be incorrect!" << std::endl; 
-                            //return 1;
-                        }
-#endif
+
+//                        std::filesystem::path p(filename);
+//                        folderPath = p.parent_path().string();
+//                        if (chdir(folderPath.c_str()) == 1) {
+//                            print("CRITICAL WARNING at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Unable to set proper path, file paths are going to fail!", PRINT_WHITE, PRINT_ERROR);
+//                            //std::cerr << "CRITICAL WARNING: Unable to set proper path, file paths are going to be incorrect!" << std::endl; 
+//                            //return 1;
+//                        }
+//#endif
 
 
                         interpret(CTokens(fileContent), venv, path);
