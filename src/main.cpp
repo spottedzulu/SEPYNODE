@@ -60,7 +60,6 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
     //for (Var* var: venvvars){
     //    var->print();
     //}
-
     while (i < code.size()) {
         if (std::any_cast<std::string>(code.at(i).data.at(0)) == "word") {
             if (varinlist(venvvars, std::any_cast<std::string>(code.at(i).data.at(1)))) {
@@ -86,6 +85,7 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
         }
         i++;
     }
+    //std::cout << "sdfs\n";
 
     i = 0;
     while (i < code.size()) {
@@ -231,18 +231,7 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
     //    i++;
     //}
 
-    i = 0;
-    while (i < code.size()) {
-        if (std::any_cast<std::string>(code[i].data[1]) == "#") {
-            i++;
-            while (i < code.size() &&
-                std::any_cast<std::string>(code[i].data[0]) != "newline") {
-                i++;
-            }
-            continue;
-        }
-        i++;
-    }
+
 
     i = 0;
     while (i < code.size()) {
@@ -1888,9 +1877,6 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
 
 
 
-
-
-
     //code.at(0).print();
     //std::cout << std::any_cast<std::string>(code.at(0).data.at(1));
     if (code.size() == 0) {
@@ -1947,43 +1933,6 @@ std::vector<Token> CTokens(std::string code) {
             token.data.clear();
             last_space = i + 1;
         }
-        else if (code[i] == '\n' && !IS) {
-            str = false;
-
-            if (i > last_space) {
-                if (num) {
-                    token.data.push_back((std::string)"int");
-                    num = false;
-                }
-                else {
-                    token.data.push_back((std::string)"word");
-                }
-
-                token.data.push_back(code.substr(last_space, i - last_space));
-                token.data.push_back((std::string)"line: " +
-                    std::to_string(debug_line_count) + ":" +
-                    std::to_string(debug_index_count));
-
-                ret.push_back(token);
-                token.data.clear();
-            }
-
-            token.data.push_back((std::string)"newline");
-            token.data.push_back((std::string)"\\n");
-            token.data.push_back((std::string)"line: " +
-                std::to_string(debug_line_count) + ":" +
-                std::to_string(debug_index_count));
-
-            ret.push_back(token);
-            token.data.clear();
-
-            debug_line_count++;
-            debug_index_count = 1;
-
-            last_space = i + 1;
-        }
-
-
         else if (code[i] == '+' && !IS) {
             str = false;
             if (num) {
@@ -2448,7 +2397,6 @@ std::vector<Token> CTokens(std::string code) {
             token.data.clear();
             last_space = i + 1;
         }
-
         else if (code[i] == '|' && !IS) {
             str = false;
             if (num) {
@@ -2483,31 +2431,6 @@ std::vector<Token> CTokens(std::string code) {
             //    token.type = "keyword";
             //    ret.push_back(token);
             //    last_space = i+1;
-        }
-        else if (code[i] == '#' && !IS) {
-            str = false;
-            if (num) {
-                token.data.push_back((std::string)"int");
-                //token.type = "int";
-                num = false;
-            }
-            else {
-                token.data.push_back((std::string)"word");
-                //token.type = "word";
-            }
-            token.data.push_back(code.substr(last_space, i - last_space));
-            token.data.push_back((std::string)"line: " + std::to_string(debug_line_count) + ":" + std::to_string(debug_index_count));
-            //token.data = code.substr(last_space, i-last_space);
-            ret.push_back(token);
-            token.data.clear();
-            token.data.push_back((std::string)"keyword");
-            //token.type = "keyword";
-            token.data.push_back((std::string)"#");
-            token.data.push_back((std::string)"line: " + std::to_string(debug_line_count) + ":" + std::to_string(debug_index_count));
-            //token.data = '!';
-            ret.push_back(token);
-            token.data.clear();
-            last_space = i + 1;
         }
         else if (code[i] == ' ' && !IS) {
             str = false;
@@ -3848,6 +3771,9 @@ void interpret(std::vector<Token> code, Venv* venv, std::string path) {
                         else if (std::any_cast<std::string>(code.at(i - 1).data.at(1)) == "/") {
                             operation = 3;
                         }
+                        else if (std::any_cast<std::string>(code.at(i - 1).data.at(1)) == "%") {
+                            operation = 4;
+                        }
 
 
                         std::string varN = std::any_cast<std::string>(code.at(i - 2).data.at(1));
@@ -3890,7 +3816,6 @@ void interpret(std::vector<Token> code, Venv* venv, std::string path) {
                                 x++;
                             }
                             //std::cout << end << "\n";
-                            //std::cout << "sdfsfdsdfsas p;k;lkm;pm'pol'p;l,';l,'p[hjl'pjlk'hgpljk'hpjlk'hj[plk'hjpkl'hjdfaksdgfkahsgdkfjas gkdjga skdjh gaksjdh fkasjdjf\n";
                             std::vector<Token> resultvector_ = getSubvector(code, i + 1, end);
                             Token extratoken;
                             extratoken.data.push_back((std::string)"keyword");
@@ -3906,6 +3831,10 @@ void interpret(std::vector<Token> code, Venv* venv, std::string path) {
                             else if (operation == 3) {
                                 extratoken.data.push_back((std::string)"/");
                             }
+                            else if (operation == 4) {
+                                extratoken.data.push_back((std::string)"%");
+                            }
+
                             Token extratoken_;
                             extratoken_.data.push_back((std::string)"word");
                             extratoken_.data.push_back(varN);
@@ -4071,6 +4000,8 @@ int main(int argc, char* argv[]) {
     //list.push_back(t);
     //Token res = eval(list, venv);
     //std::cout << res.data << " " << res.type << "\n";
+
+
     if (argc < 2) {
         std::cerr << "Usage: " << argv[0] << " <filename>" << std::endl;
         std::cout << argv[0] << " --help for more info." << std::endl;
@@ -4083,7 +4014,7 @@ int main(int argc, char* argv[]) {
         std::cout << "Options:" << std::endl;
         std::cout << "  -t    Cancels time printing after script execution" << std::endl;
         std::cout << "  -h    This help page" << std::endl;
-        return 0;
+        return 1;
     }
 
     if (argc >= 2) {
@@ -4112,20 +4043,25 @@ int main(int argc, char* argv[]) {
 
     std::string folderPath;
 
+    //#if defined(_WIN32)
+        //size_t lastSlash = ((std::string)argv[1]).find_last_of("\\/");
+    folderPath = std::filesystem::current_path().string();    //((std::string)argv[1]).substr(0, lastSlash);
+    //std::cout << "path: " << folderPath << "\n";
 #if defined(_WIN32)
-    size_t lastSlash = ((std::string)argv[1]).find_last_of("\\/");
-    folderPath = ((std::string)argv[1]).substr(0, lastSlash);
     if (!SetCurrentDirectoryA(folderPath.c_str())) {
-        //std::cerr << "CRITICAL WARNING: Unable to set proper path, file paths are going to fail!" << std::endl;
-        //return 1;
-    }
 #elif defined(__linux__)
-    folderPath = dirname(argv[1]);
     if (chdir(folderPath.c_str()) == 1) {
+#endif
         std::cerr << "CRITICAL WARNING: Unable to set proper path, file paths are going to fail!" << std::endl;
         //return 1;
     }
-#endif
+    //#elif defined(__linux__)
+    //    folderPath = dirname(argv[1]);
+    //    if (chdir(folderPath.c_str()) == 1) {
+    //        std::cerr << "CRITICAL WARNING: Unable to set proper path, file paths are going to fail!" << std::endl;
+    //        //return 1;
+    //    }
+    //#endif
 
 
     auto start = std::chrono::high_resolution_clock::now();
