@@ -1884,7 +1884,7 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
         }
         i++;
     }
-	
+
 
 
 
@@ -4071,17 +4071,31 @@ int main(int argc, char* argv[]) {
     //list.push_back(t);
     //Token res = eval(list, venv);
     //std::cout << res.data << " " << res.type << "\n";
-
-
     if (argc < 2) {
         std::cerr << "Usage: " << argv[0] << " <filename>" << std::endl;
+        std::cout << argv[0] << " --help for more info." << std::endl;
         return 1;
     }
 
+    if (std::string(argv[1]) == "-h" || std::string(argv[1]) == "--help") {
+        std::cout << "SPN Interpreter Help" << std::endl;
+        std::cout << "Usage: " << argv[0] << " <filename> [-p]" << std::endl;
+        std::cout << "Options:" << std::endl;
+        std::cout << "  -t    Cancels time printing after script execution" << std::endl;
+        std::cout << "  -h    This help page" << std::endl;
+        return 0;
+    }
 
+    if (argc >= 2) {
+        timer = true;
 
-
-
+        for (int i = 2; i < argc; ++i) {
+            std::string arg = argv[i];
+            if (arg == "-t") {
+                timer = false;
+            }
+        }
+    }
 
     std::ifstream inputFile(argv[1]); // Open the file 
     std::stringstream buffer;
@@ -4098,25 +4112,20 @@ int main(int argc, char* argv[]) {
 
     std::string folderPath;
 
-    //#if defined(_WIN32)
-        //size_t lastSlash = ((std::string)argv[1]).find_last_of("\\/");
-    folderPath = std::filesystem::current_path().string();    //((std::string)argv[1]).substr(0, lastSlash);
-    //std::cout << "path: " << folderPath << "\n";
 #if defined(_WIN32)
+    size_t lastSlash = ((std::string)argv[1]).find_last_of("\\/");
+    folderPath = ((std::string)argv[1]).substr(0, lastSlash);
     if (!SetCurrentDirectoryA(folderPath.c_str())) {
+        //std::cerr << "CRITICAL WARNING: Unable to set proper path, file paths are going to fail!" << std::endl;
+        //return 1;
+    }
 #elif defined(__linux__)
+    folderPath = dirname(argv[1]);
     if (chdir(folderPath.c_str()) == 1) {
-#endif
         std::cerr << "CRITICAL WARNING: Unable to set proper path, file paths are going to fail!" << std::endl;
         //return 1;
     }
-    //#elif defined(__linux__)
-    //    folderPath = dirname(argv[1]);
-    //    if (chdir(folderPath.c_str()) == 1) {
-    //        std::cerr << "CRITICAL WARNING: Unable to set proper path, file paths are going to fail!" << std::endl;
-    //        //return 1;
-    //    }
-    //#endif
+#endif
 
 
     auto start = std::chrono::high_resolution_clock::now();
