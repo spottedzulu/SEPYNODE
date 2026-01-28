@@ -3201,7 +3201,7 @@ void interpret(std::vector<Token> code, Venv* venv, std::string path) {
 
 
                     // NEW FOR last_cut
-                    i = x + 1;
+                    i = x; //i = x + 1; this was the previouse thing if its wrong please test again 
                     last_cut = i + 1;
                     // END FOR last_cut
 
