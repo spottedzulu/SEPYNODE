@@ -262,6 +262,10 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
                             libid = getnewid();
                             //std::cout << "DLIB ID: " << libid << "\n";
                             DLIB.id = libid;
+                            //std::string folderPath;
+
+
+
 #if defined(_WIN32)
                             HINSTANCE hDll = LoadLibraryA(std::any_cast<std::string>(libname.data[1]).c_str());
                             if (!hDll) {
@@ -281,8 +285,17 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
                             dlerror();
                             DLIB.handle = handle;
 #endif
+
+                            //#if defined(_WIN32)
+                            //    if (!SetCurrentDirectoryA(path.c_str())) {
+                            //#elif defined(__linux__)
+                            //    if (chdir(path.c_str()) == 1) {
+                            //#endif
+                            //    std::cerr << "CRITICAL WARNING: Unable to set proper path!" << std::endl;
+                            //}
                             dlibs.push_back(DLIB);
                         }
+
 
                         code[i].data[0] = (std::string)"DYNAMICLIB";
                         code[i].data[1] = std::to_string(libid);
@@ -3432,6 +3445,16 @@ void interpret(std::vector<Token> code, Venv* venv, std::string path) {
 
                         interpret(CTokens(fileContent), venv, path);
 
+                        #if defined(_WIN32)
+                            if (!SetCurrentDirectoryA(folderPath.c_str())) {
+                        #elif defined(__linux__)
+                            if (chdir(folderPath.c_str()) == 1) {
+                        #endif
+                            print("CRITICAL WARNING at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Unable to set proper path, file paths are going to fail!", PRINT_WHITE, PRINT_ERROR);
+                            //std::cerr << "CRITICAL WARNING: Unable to set proper path, file paths are going to be incorrect!" << std::endl;
+                            //exit(-1);
+                        }
+
                         //set the path back to normal
                         }
                     else {
@@ -4028,7 +4051,9 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    std::ifstream inputFile(argv[1]); // Open the file 
+    std::string filename = argv[1];
+
+    std::ifstream inputFile(filename); // Open the file 
     std::stringstream buffer;
     std::string fileContent;
     if (inputFile.is_open()) {
@@ -4041,20 +4066,48 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    std::string folderPath;
 
-    //#if defined(_WIN32)
-        //size_t lastSlash = ((std::string)argv[1]).find_last_of("\\/");
-    folderPath = std::filesystem::current_path().string();    //((std::string)argv[1]).substr(0, lastSlash);
-    //std::cout << "path: " << folderPath << "\n";
-#if defined(_WIN32)
-    if (!SetCurrentDirectoryA(folderPath.c_str())) {
-#elif defined(__linux__)
-    if (chdir(folderPath.c_str()) == 1) {
-#endif
-        std::cerr << "CRITICAL WARNING: Unable to set proper path, file paths are going to fail!" << std::endl;
-        //return 1;
+
+
+    std::filesystem::path p(filename);
+    
+    std::filesystem::path absP = p.is_absolute() ? p : std::filesystem::absolute(p);  // Resolve to absolute
+    std::filesystem::path parent = absP.parent_path();
+    std::string folderPath = parent.string();
+    
+    #if defined(_WIN32)
+        if (!SetCurrentDirectoryA(folderPath.c_str())) {
+    #elif defined(__linux__)
+        if (chdir(folderPath.c_str()) == 1) {
+    #endif
+        print("CRITICAL WARNING: Unable to set proper path, file paths are going to fail!", PRINT_WHITE, PRINT_ERROR);
+        //std::cerr << "CRITICAL WARNING: Unable to set proper path, file paths are going to be incorrect!" << std::endl;
+        //exit(-1);
     }
+
+
+//    std::string folderPath;
+//
+//
+//    //#if defined(_WIN32)
+//        //size_t lastSlash = ((std::string)argv[1]).find_last_of("\\/");
+//    folderPath = std::filesystem::current_path().string();    //((std::string)argv[1]).substr(0, lastSlash);
+//    //std::cout << "path: " << folderPath << "\n";
+//#if defined(_WIN32)
+//    if (!SetCurrentDirectoryA(folderPath.c_str())) {
+//#elif defined(__linux__)
+//    if (chdir(folderPath.c_str()) == 1) {
+//#endif
+//
+//    //std::cout << "path: " << folderPath << "\n";
+//#if defined(_WIN32)
+//    if (!SetCurrentDirectoryA(folderPath.c_str())) {
+//#elif defined(__linux__)
+//    if (chdir(folderPath.c_str()) == 1) {
+//#endif
+//        std::cerr << "CRITICAL WARNING: Unable to set proper path, file paths are going to fail!" << std::endl;
+//        //return 1;
+//    }
     //#elif defined(__linux__)
     //    folderPath = dirname(argv[1]);
     //    if (chdir(folderPath.c_str()) == 1) {
