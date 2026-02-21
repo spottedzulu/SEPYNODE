@@ -1667,6 +1667,32 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
                         exit(-1);
                     }
                 }
+                else if (std::any_cast<std::string>(code[i + 1].data[0]) == "object"){
+                    int objectvenvindex = std::any_cast<int>(code.at(i + 1).data.at(1));
+                    Venv* objectvenv = &globalobjects.at(objectvenvindex);
+                    if (!objectvenv->operatorNOT.init) {
+                        print("ERROR at " + std::any_cast<std::string>(code.at(i + 1).data.at(3)) + ": class type " + std::any_cast<std::string>(code.at(i + 1).data.at(2)) + " does not support subtraction!", PRINT_WHITE, PRINT_ERROR);
+                        freedlibs();
+                        exit(-1);
+                    }
+                    std::vector<Token> code_ = std::any_cast<std::vector<Token>>(objectvenv->operatorNOT.data[0]);
+                    std::vector<std::vector<Token>> argvector = std::any_cast<std::vector<std::vector<Token>>>(objectvenv->operatorNOT.data[1]);
+
+                    for (std::vector<Token> arg_ : argvector) {
+                        interpret(arg_, objectvenv, path);
+                    }
+                    interpret(code_, objectvenv, path);
+
+                    //std::cout << "ksdfghskdfhgsdfg\n";
+                    std::vector<Var*> venvvars = getvars(venv);
+                    code[i] = venvvars.at(varinlistindex(venvvars, "Function_result_return_value"))->data;
+
+                    // about 200 lines up there is almost the same code for functions.... try to fix it 
+
+                    removeAtIndex(code, i + 1);
+                    i -= 1;
+                    // idk maybe test this shit
+                }
                 else {
                     print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Expected bool!", PRINT_WHITE, PRINT_ERROR);
                     //print("ERROR: Expected bool.", PRINT_WHITE, PRINT_ERROR);
@@ -1723,6 +1749,69 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
                             exit(-1);
                         }
                     }
+                    else if (std::any_cast<std::string>(code[i - 1].data[0]) == "object"){
+                        int objectvenvindex = std::any_cast<int>(code.at(i - 1).data.at(1));
+                        Venv* objectvenv = &globalobjects.at(objectvenvindex);
+                        if (!objectvenv->operatorAND.init) {
+                            print("ERROR at " + std::any_cast<std::string>(code.at(i - 1).data.at(3)) + ": class type " + std::any_cast<std::string>(code.at(i - 1).data.at(2)) + " does not support subtraction!", PRINT_WHITE, PRINT_ERROR);
+                            freedlibs();
+                            exit(-1);
+                        }
+                        std::vector<Token> code_ = std::any_cast<std::vector<Token>>(objectvenv->operatorAND.data[0]);
+                        std::vector<std::vector<Token>> argvector = std::any_cast<std::vector<std::vector<Token>>>(objectvenv->operatorAND.data[1]);
+                        //int last_var_index = objectvenv->vars.size();
+                        //int add_args_len = 0;
+
+                        //for (std::vector<Token> arg_ : argvector) {
+                        //    interpret(arg_, objectvenv, path);
+                        //    add_args_len++;
+                        //}
+
+                        //if (add_args_len > 0) {
+                        //    //std::cout << std::any_cast<std::string>(code.at(i+1).data.at(2)) << '\n';
+                        //    objectvenv->vars.at(last_var_index).data = code.at(i - 1); // set the first var equal to the other sub num
+                        //}
+
+                        //std::cout << "sjkdfs\n";
+                        //std::cout << "objectvenv addr: " << objectvenv << "\n";
+
+
+
+                        interpret(code_, objectvenv, path);
+                        //std::cout << "ksdfghskdfhgsdfg\n";
+
+                        std::vector<Var*> venvvars = getvars(venv);
+                        Token resultbool = venvvars.at(varinlistindex(venvvars, "Function_result_return_value"))->data;//code[i - 1]
+                        
+                        if (std::any_cast<std::string>(resultbool.data.at(0)) == "int"){
+                            if (std::any_cast<std::string>(resultbool.data.at(1)) == "1"){
+                                arg1 = true;
+                            }else if (std::any_cast<std::string>(resultbool.data.at(1)) == "0"){
+                                arg1 = false;
+                            }else{
+                                print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Expected 1 or 0 from object!", PRINT_WHITE, PRINT_ERROR);
+                                //print("ERROR: Expected 1 or 0.", PRINT_WHITE, PRINT_ERROR);
+                                freedlibs();
+                                exit(-1);
+                            }
+                        }else if (std::any_cast<std::string>(resultbool.data.at(0)) == "word"){
+                            if (std::any_cast<std::string>(resultbool.data.at(1)) == "true"){
+                                arg1 = true;
+                            }else if (std::any_cast<std::string>(resultbool.data.at(1)) == "false"){
+                                arg1 = false;
+                            }else{
+                                print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Expected true or false from object!", PRINT_WHITE, PRINT_ERROR);
+                                //print("ERROR: Expected 1 or 0.", PRINT_WHITE, PRINT_ERROR);
+                                freedlibs();
+                                exit(-1);
+                            }
+                        }else{
+                            print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Expected int or bool from object!", PRINT_WHITE, PRINT_ERROR);
+                            //print("ERROR: Expected 1 or 0.", PRINT_WHITE, PRINT_ERROR);
+                            freedlibs();
+                            exit(-1);
+                        }
+                    }
                     else {
                         print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Expected bool!", PRINT_WHITE, PRINT_ERROR);
                         //print("ERROR: Expected bool.", PRINT_WHITE, PRINT_ERROR);
@@ -1758,12 +1847,82 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
                             exit(-1);
                         }
                     }
+                    else if (std::any_cast<std::string>(code[i + 1].data[0]) == "object"){
+                        int objectvenvindex = std::any_cast<int>(code.at(i + 1).data.at(1));
+                        Venv* objectvenv = &globalobjects.at(objectvenvindex);
+                        if (!objectvenv->operatorAND.init) {
+                            print("ERROR at " + std::any_cast<std::string>(code.at(i + 1).data.at(3)) + ": class type " + std::any_cast<std::string>(code.at(i + 1).data.at(2)) + " does not support subtraction!", PRINT_WHITE, PRINT_ERROR);
+                            freedlibs();
+                            exit(-1);
+                        }
+                        std::vector<Token> code_ = std::any_cast<std::vector<Token>>(objectvenv->operatorAND.data[0]);
+                        std::vector<std::vector<Token>> argvector = std::any_cast<std::vector<std::vector<Token>>>(objectvenv->operatorAND.data[1]);
+                        //int last_var_index = objectvenv->vars.size();
+                        //int add_args_len = 0;
+
+                        //for (std::vector<Token> arg_ : argvector) {
+                        //    interpret(arg_, objectvenv, path);
+                        //    add_args_len++;
+                        //}
+
+                        //if (add_args_len > 0) {
+                        //    //std::cout << std::any_cast<std::string>(code.at(i+1).data.at(2)) << '\n';
+                        //    objectvenv->vars.at(last_var_index).data = code.at(i - 1); // set the first var equal to the other sub num
+                        //}
+
+                        //std::cout << "sjkdfs\n";
+                        //std::cout << "objectvenv addr: " << objectvenv << "\n";
+
+
+
+                        interpret(code_, objectvenv, path);
+                        //std::cout << "ksdfghskdfhgsdfg\n";
+
+                        std::vector<Var*> venvvars = getvars(venv);
+                        Token resultbool = venvvars.at(varinlistindex(venvvars, "Function_result_return_value"))->data;//code[i + 1]
+                        
+                        if (std::any_cast<std::string>(resultbool.data.at(0)) == "int"){
+                            if (std::any_cast<std::string>(resultbool.data.at(1)) == "1"){
+                                arg1 = true;
+                            }else if (std::any_cast<std::string>(resultbool.data.at(1)) == "0"){
+                                arg1 = false;
+                            }else{
+                                print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Expected 1 or 0 from object!", PRINT_WHITE, PRINT_ERROR);
+                                //print("ERROR: Expected 1 or 0.", PRINT_WHITE, PRINT_ERROR);
+                                freedlibs();
+                                exit(-1);
+                            }
+                        }else if (std::any_cast<std::string>(resultbool.data.at(0)) == "word"){
+                            if (std::any_cast<std::string>(resultbool.data.at(1)) == "true"){
+                                arg1 = true;
+                            }else if (std::any_cast<std::string>(resultbool.data.at(1)) == "false"){
+                                arg1 = false;
+                            }else{
+                                print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Expected true or false from object!", PRINT_WHITE, PRINT_ERROR);
+                                //print("ERROR: Expected 1 or 0.", PRINT_WHITE, PRINT_ERROR);
+                                freedlibs();
+                                exit(-1);
+                            }
+                        }else{
+                            print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Expected int or bool from object!", PRINT_WHITE, PRINT_ERROR);
+                            //print("ERROR: Expected 1 or 0.", PRINT_WHITE, PRINT_ERROR);
+                            freedlibs();
+                            exit(-1);
+                        }
+
+                        // about 200 lines up there is almost the same code for functions.... try to fix it 
+                        //removeAtIndex(code, i + 1);
+                        //removeAtIndex(code, i);
+                        //i -= 2;
+                        // idk maybe test this shit
+                    }
                     else {
                         print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Expected bool!", PRINT_WHITE, PRINT_ERROR);
                         //print("ERROR: Expected bool.", PRINT_WHITE, PRINT_ERROR);
                         freedlibs();
                         exit(-1);
                     }
+                    
                     bool result = arg1 && arg2;
                     if (result) {
                         code[i - 1].data[0] = (std::string)"int";
@@ -1818,8 +1977,70 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
                             freedlibs();
                             exit(-1);
                         }
-                    }
-                    else {
+                    }else if (std::any_cast<std::string>(code[i - 1].data[0]) == "object"){
+                        int objectvenvindex = std::any_cast<int>(code.at(i - 1).data.at(1));
+                        Venv* objectvenv = &globalobjects.at(objectvenvindex);
+                        if (!objectvenv->operatorAND.init) {
+                            print("ERROR at " + std::any_cast<std::string>(code.at(i - 1).data.at(3)) + ": class type " + std::any_cast<std::string>(code.at(i - 1).data.at(2)) + " does not support subtraction!", PRINT_WHITE, PRINT_ERROR);
+                            freedlibs();
+                            exit(-1);
+                        }
+                        std::vector<Token> code_ = std::any_cast<std::vector<Token>>(objectvenv->operatorAND.data[0]);
+                        std::vector<std::vector<Token>> argvector = std::any_cast<std::vector<std::vector<Token>>>(objectvenv->operatorAND.data[1]);
+                        //int last_var_index = objectvenv->vars.size();
+                        //int add_args_len = 0;
+
+                        //for (std::vector<Token> arg_ : argvector) {
+                        //    interpret(arg_, objectvenv, path);
+                        //    add_args_len++;
+                        //}
+
+                        //if (add_args_len > 0) {
+                        //    //std::cout << std::any_cast<std::string>(code.at(i+1).data.at(2)) << '\n';
+                        //    objectvenv->vars.at(last_var_index).data = code.at(i - 1); // set the first var equal to the other sub num
+                        //}
+
+                        //std::cout << "sjkdfs\n";
+                        //std::cout << "objectvenv addr: " << objectvenv << "\n";
+
+
+
+                        interpret(code_, objectvenv, path);
+                        //std::cout << "ksdfghskdfhgsdfg\n";
+
+                        std::vector<Var*> venvvars = getvars(venv);
+                        Token resultbool = venvvars.at(varinlistindex(venvvars, "Function_result_return_value"))->data;//code[i - 1]
+                        
+                        if (std::any_cast<std::string>(resultbool.data.at(0)) == "int"){
+                            if (std::any_cast<std::string>(resultbool.data.at(1)) == "1"){
+                                arg1 = true;
+                            }else if (std::any_cast<std::string>(resultbool.data.at(1)) == "0"){
+                                arg1 = false;
+                            }else{
+                                print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Expected 1 or 0 from object!", PRINT_WHITE, PRINT_ERROR);
+                                //print("ERROR: Expected 1 or 0.", PRINT_WHITE, PRINT_ERROR);
+                                freedlibs();
+                                exit(-1);
+                            }
+                        }else if (std::any_cast<std::string>(resultbool.data.at(0)) == "word"){
+                            if (std::any_cast<std::string>(resultbool.data.at(1)) == "true"){
+                                arg1 = true;
+                            }else if (std::any_cast<std::string>(resultbool.data.at(1)) == "false"){
+                                arg1 = false;
+                            }else{
+                                print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Expected true or false from object!", PRINT_WHITE, PRINT_ERROR);
+                                //print("ERROR: Expected 1 or 0.", PRINT_WHITE, PRINT_ERROR);
+                                freedlibs();
+                                exit(-1);
+                            }
+                        }else{
+                            print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Expected int or bool from object!", PRINT_WHITE, PRINT_ERROR);
+                            //print("ERROR: Expected 1 or 0.", PRINT_WHITE, PRINT_ERROR);
+                            freedlibs();
+                            exit(-1);
+                        }
+                    
+                    }else {
                         print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Expected bool!", PRINT_WHITE, PRINT_ERROR);
                         //print("ERROR: Expected bool.", PRINT_WHITE, PRINT_ERROR);
                         freedlibs();
@@ -1839,8 +2060,53 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
                             freedlibs();
                             exit(-1);
                         }
-                    }
-                    else if (std::any_cast<std::string>(code[i + 1].data[0]) == "int") {
+                    }else if (std::any_cast<std::string>(code[i + 1].data[0]) == "object"){
+                        int objectvenvindex = std::any_cast<int>(code.at(i + 1).data.at(1));
+                        Venv* objectvenv = &globalobjects.at(objectvenvindex);
+                        if (!objectvenv->operatorAND.init) {
+                            print("ERROR at " + std::any_cast<std::string>(code.at(i + 1).data.at(3)) + ": class type " + std::any_cast<std::string>(code.at(i + 1).data.at(2)) + " does not support subtraction!", PRINT_WHITE, PRINT_ERROR);
+                            freedlibs();
+                            exit(-1);
+                        }
+                        std::vector<Token> code_ = std::any_cast<std::vector<Token>>(objectvenv->operatorAND.data[0]);
+                        std::vector<std::vector<Token>> argvector = std::any_cast<std::vector<std::vector<Token>>>(objectvenv->operatorAND.data[1]);
+                        //int last_var_index = objectvenv->vars.size();
+                        //int add_args_len = 0;
+
+                        //for (std::vector<Token> arg_ : argvector) {
+                        //    interpret(arg_, objectvenv, path);
+                        //    add_args_len++;
+                        //}
+
+                        //if (add_args_len > 0) {
+                        //    //std::cout << std::any_cast<std::string>(code.at(i+1).data.at(2)) << '\n';
+                        //    objectvenv->vars.at(last_var_index).data = code.at(i - 1); // set the first var equal to the other sub num
+                        //}
+
+                        //std::cout << "sjkdfs\n";
+                        //std::cout << "objectvenv addr: " << objectvenv << "\n";
+
+
+
+                        interpret(code_, objectvenv, path);
+                        //std::cout << "ksdfghskdfhgsdfg\n";
+
+                        std::vector<Var*> venvvars = getvars(venv);
+                        Token resultbool = venvvars.at(varinlistindex(venvvars, "Function_result_return_value"))->data;//code[i + 1]
+                        
+                        if (std::any_cast<std::string>(resultbool.data.at(0)) == "int"){
+                            if (std::any_cast<std::string>(resultbool.data.at(1)) == "1"){
+                                arg1 = true;
+                            }else if (std::any_cast<std::string>(resultbool.data.at(1)) == "0"){
+                                arg1 = false;
+                            }else{
+                                print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Expected 1 or 0 from object!", PRINT_WHITE, PRINT_ERROR);
+                                //print("ERROR: Expected 1 or 0.", PRINT_WHITE, PRINT_ERROR);
+                                freedlibs();
+                                exit(-1);
+                            }
+                        }
+                    }else if (std::any_cast<std::string>(code[i + 1].data[0]) == "int") {
                         if (std::any_cast<std::string>(code[i + 1].data[1]) == "1") {
                             arg2 = true;
                         }
@@ -1853,8 +2119,7 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
                             freedlibs();
                             exit(-1);
                         }
-                    }
-                    else {
+                    }else {
                         print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Expected bool!", PRINT_WHITE, PRINT_ERROR);
                         //print("ERROR: Expected bool.", PRINT_WHITE, PRINT_ERROR);
                         freedlibs();
