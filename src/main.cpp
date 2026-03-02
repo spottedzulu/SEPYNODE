@@ -21,7 +21,7 @@
 
 
 static std::vector<dlib> dlibs;
-static sepynodedata spnglobaldata;
+static sepynodedata spnglobaldata; 
 std::vector<Venv> globalobjects;
 
 void interpret(std::vector<Token> code, Venv* venv, std::string path);
@@ -455,15 +455,15 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
                     for (std::vector<Token> elements : argvector) {
                         //std::cout << "start\n";
                         //elements.push_back(extraToken);
-                        ////for (Token element: elements) {
-                        ////    std::cout << "--data: " << std::any_cast<std::string>(element.data.at(1)) << ", type: " << std::any_cast<std::string>(element.data.at(0)) << "\n";
-                        ////}
+                        //for (Token element: elements) {
+                        //    std::cout << "--data: " << std::any_cast<std::string>(element.data.at(1)) << ", type: " << std::any_cast<std::string>(element.data.at(0)) << "\n";
+                        //}
                         int split = 0;
-                        while (split < elements.size() && std::any_cast<std::string>(elements[split].data[0]) != "keyword" && std::any_cast<std::string>(elements[split].data[1]) != "=") {
+                        while (split < elements.size() && (std::any_cast<std::string>(elements[split].data[0]) != "keyword" || std::any_cast<std::string>(elements[split].data[1]) != "=")) {
                             split++;
                         }
-
-                        if (split == elements.size()) {
+                        //std::cout << split << " " << elements.size() << "\n";
+                        if (split == elements.size()) { //ok for fucking sake WHAT THA HELL HAVE I WRITEN...
                             if (!WordsActive) {
                                 if (argindex >= FunctionVenv.vars.size()) {
                                     std::cout << "size: " << FunctionVenv.vars.size() << " index: " << argindex << "\n";
