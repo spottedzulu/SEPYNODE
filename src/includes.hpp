@@ -101,7 +101,7 @@ struct Var{
 
 struct Venv{
     std::vector<Var> vars;
-    std::vector<Venv> objects;
+    //std::vector<Venv> objects;
     Venv* parent;
     Token operatorINIT = Token(false);
     Token operatorSTR = Token(false);
@@ -195,26 +195,33 @@ std::vector<T> getSubvector(const std::vector<T>& vec, int start, int end) {
 
 std::vector<Var*> getvars(Venv* venv){
     std::vector<Var*> vars;
+    //std::cout << "addr: " << venv << "\n";
+    //std::cout << "reserved size: " << venv->vars.size() << "\n";
     vars.reserve(venv->vars.size());
+    //std::cout << "xsfjkdgslfjgdlfg\n";
     int i = 0;
     while (i!=venv->vars.size()){
-        vars.push_back(&venv->vars[i]);
+        vars.push_back(&venv->vars.at(i));
         i++;
     }
     //vars = venv->vars;
     if (venv->parent != NULL){
+        //std::cout << "addr venv get vars: " << venv->parent << "\n";
+        
         std::vector<Var*> parentvars = getvars(venv->parent);
         for (int i = 0;i!=parentvars.size();i++){
-            vars.push_back(parentvars[i]);
+            vars.push_back(parentvars.at(i));
         }
     }
 
     return vars;
 }
 
+
+
 bool varinlist(std::vector<Var*> vars, std::string varname){
     for(int i = 0;i!=vars.size();i++){
-        if (vars[i]->name == varname){
+        if (vars.at(i)->name == varname){
             return true;
         }
     }
@@ -223,7 +230,7 @@ bool varinlist(std::vector<Var*> vars, std::string varname){
 
 int varinlistindex(std::vector<Var*> vars, std::string varname){
     for(int i = 0;i!=vars.size();i++){
-        if (vars[i]->name == varname){
+        if (vars.at(i)->name == varname){
             return i;
         }
     }
