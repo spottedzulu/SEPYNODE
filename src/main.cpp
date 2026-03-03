@@ -146,6 +146,7 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
             }
             Token venvtoken = eval(getSubvector(code, x, i - 1), venv, path);
             start = x;
+            std::cout << "type, data:" << std::any_cast<std::string>(venvtoken.data[0]) << " " << std::any_cast<std::string>(venvtoken.data[1]) << "\n";
             if (std::any_cast<std::string>(venvtoken.data[0]) != "object") {
                 print("ERROR at " + std::any_cast<std::string>(venvtoken.data[2]) + ": Expected object.", PRINT_WHITE, PRINT_ERROR);
                 freedlibs();
@@ -222,7 +223,7 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
     //                    x--;
     //                    break;
     //                }
-    //                if (std::any_cast<std::string>(code[x].data[0]) == "keyword" && std::any_cast<std::string>(code[x].data[1]) == ";"){
+    //                if (std::any_cast<std::string>(code[x].data[0]) == "keyword" && (std::any_cast<std::string>(code[x].data[1]) == ";" || std::any_cast<std::string>(code[x].data[1]) == "}")){
     //                    finished = true;
     //                    break;
     //                }
@@ -2867,7 +2868,7 @@ void interpret(std::vector<Token> code, Venv* venv, std::string path) {
                         i = x;
                         end = true;
                     }
-                    if (std::any_cast<std::string>(code[x].data[1]) == ";" && std::any_cast<std::string>(code[x].data[0]) == "keyword") {
+                    if ((std::any_cast<std::string>(code[x].data[1]) == ";" || std::any_cast<std::string>(code[x].data[1]) == "}") && std::any_cast<std::string>(code[x].data[0]) == "keyword") {
                         message += "\033[0m";
                         finalmsg += message;
                         message = "";
@@ -3030,7 +3031,7 @@ void interpret(std::vector<Token> code, Venv* venv, std::string path) {
                         i = x;
                         end = true;
                     }
-                    if (std::any_cast<std::string>(code[x].data[1]) == ";" && std::any_cast<std::string>(code[x].data[0]) == "keyword") {
+                    if ((std::any_cast<std::string>(code[x].data[1]) == ";" || std::any_cast<std::string>(code[x].data[1]) == "}") && std::any_cast<std::string>(code[x].data[0]) == "keyword") {
                         message += "\033[0m";
                         finalmsg += message;
                         message = "";
@@ -3193,7 +3194,7 @@ void interpret(std::vector<Token> code, Venv* venv, std::string path) {
                         i = x;
                         end = true;
                     }
-                    if (std::any_cast<std::string>(code[x].data[1]) == ";" && std::any_cast<std::string>(code[x].data[0]) == "keyword") {
+                    if ((std::any_cast<std::string>(code[x].data[1]) == ";" || std::any_cast<std::string>(code[x].data[1]) == "}") && std::any_cast<std::string>(code[x].data[0]) == "keyword") {
                         message += "\033[0m";
                         finalmsg += message;
                         message = "";
@@ -3378,7 +3379,7 @@ void interpret(std::vector<Token> code, Venv* venv, std::string path) {
             }
             else if (std::any_cast<std::string>(code[i].data[1]) == "return") {
                 int x = i;
-                while (!(std::any_cast<std::string>(code[x].data[0]) == "keyword" && std::any_cast<std::string>(code[x].data[1]) == ";")) {
+                while (!(std::any_cast<std::string>(code[x].data[0]) == "keyword" && (std::any_cast<std::string>(code[x].data[1]) == ";" || std::any_cast<std::string>(code[x].data[1]) == "}"))) {
                     x++;
                     if (x == code.size()) {
                         print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Expected ; after return!", PRINT_WHITE, PRINT_ERROR);
@@ -3438,7 +3439,7 @@ void interpret(std::vector<Token> code, Venv* venv, std::string path) {
                             end = true;
                             break;
                         }
-                        if (std::any_cast<std::string>(code[x].data[0]) == "keyword" && std::any_cast<std::string>(code[x].data[1]) == ";") {
+                        if (std::any_cast<std::string>(code[x].data[0]) == "keyword" && (std::any_cast<std::string>(code[x].data[1]) == ";" || std::any_cast<std::string>(code[x].data[1]) == "}")) {
                             end = true;
                             break;
                         }
@@ -3653,7 +3654,7 @@ void interpret(std::vector<Token> code, Venv* venv, std::string path) {
                         freedlibs();
                         exit(-1);
                     }
-                    if (std::any_cast<std::string>(code[x].data[0]) == "keyword" && std::any_cast<std::string>(code[x].data[1]) == ";") {
+                    if (std::any_cast<std::string>(code[x].data[0]) == "keyword" && (std::any_cast<std::string>(code[x].data[1]) == ";" || std::any_cast<std::string>(code[x].data[1]) == "}")) {
                         end = true;
                         continue;
                     }
@@ -3948,7 +3949,7 @@ void interpret(std::vector<Token> code, Venv* venv, std::string path) {
             //                print("ERROR: missing ';'.", PRINT_WHITE, PRINT_ERROR);
             //                exit(-1);
             //            }
-            //            if (std::any_cast<std::string>(code[x].data[0]) == "keyword" && std::any_cast<std::string>(code[x].data[1]) == ";"){
+            //            if (std::any_cast<std::string>(code[x].data[0]) == "keyword" && (std::any_cast<std::string>(code[x].data[1]) == ";" || std::any_cast<std::string>(code[x].data[1]) == "}")){
             //                finished = true;
             //                break;
             //            }
@@ -4023,7 +4024,7 @@ void interpret(std::vector<Token> code, Venv* venv, std::string path) {
                                     exit(-1);
                                 }
                                 if (std::any_cast<std::string>(code[x].data[0]) == "keyword") {
-                                    if (std::any_cast<std::string>(code[x].data[1]) == ";") {
+                                    if ((std::any_cast<std::string>(code[x].data[1]) == ";" || std::any_cast<std::string>(code[x].data[1]) == "}")) {
                                         end = x - 1;
                                         finished = true;
                                     }
@@ -4113,7 +4114,7 @@ void interpret(std::vector<Token> code, Venv* venv, std::string path) {
                                     exit(-1);
                                 }
                                 if (std::any_cast<std::string>(code[x].data[0]) == "keyword") {
-                                    if (std::any_cast<std::string>(code[x].data[1]) == ";") {
+                                    if ((std::any_cast<std::string>(code[x].data[1]) == ";" || std::any_cast<std::string>(code[x].data[1]) == "}")) {
                                         end = x - 1;
                                         finished = true;
                                     }
@@ -4220,7 +4221,7 @@ void interpret(std::vector<Token> code, Venv* venv, std::string path) {
                         break;
                     }
 
-                    if (std::any_cast<std::string>(code[x].data[1]) == ";" && std::any_cast<std::string>(code[x].data[0]) == "keyword") {
+                    if ((std::any_cast<std::string>(code[x].data[1]) == ";" || std::any_cast<std::string>(code[x].data[1]) == "}") && std::any_cast<std::string>(code[x].data[0]) == "keyword") {
                         end = true;
                         x++;
                         break;
@@ -4252,7 +4253,7 @@ void interpret(std::vector<Token> code, Venv* venv, std::string path) {
                         break;
                     }
 
-                    if (std::any_cast<std::string>(code[x].data[1]) == ";" && std::any_cast<std::string>(code[x].data[0]) == "keyword") {
+                    if ((std::any_cast<std::string>(code[x].data[1]) == ";" || std::any_cast<std::string>(code[x].data[1]) == "}") && std::any_cast<std::string>(code[x].data[0]) == "keyword") {
                         end = true;
                         break;
                     }
