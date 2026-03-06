@@ -275,7 +275,7 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
                             x++;
                         }
                         if (!newlib) {
-                            std::cout << "loading lib: '" << std::any_cast<std::string>(libname.data[1]) << "'\n";
+                            //std::cout << "loading lib: '" << std::any_cast<std::string>(libname.data[1]) << "'\n";
                             dlib DLIB;
                             DLIB.name = std::any_cast<std::string>(libname.data[1]);
                             libid = getnewid();
@@ -968,8 +968,8 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
                         // about 200 lines up there is almost the same code for functions.... try to fix it 
                         removeAtIndex(code, i + 1);
                         removeAtIndex(code, i);
-                        i -= 2;
-                        // idk maybe test this shit
+                        i -= 1;
+                        // idk maybe test this shit // well many error from this line...
                     }
                     else if (std::any_cast<std::string>(code.at(i + 1).data.at(0)) == "object") {
                         int objectvenvindex = std::any_cast<int>(code.at(i + 1).data.at(1));
@@ -1003,7 +1003,7 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
                         // about 200 lines up there is almost the same code for functions.... try to fix it 
                         removeAtIndex(code, i + 1);
                         removeAtIndex(code, i);
-                        i -= 2;
+                        i -= 1;
                         // idk maybe test this shit
                     }
                     else if (std::any_cast<std::string>(code.at(i - 1).data.at(0)) == "int") {
@@ -1011,7 +1011,7 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
                             code.at(i - 1).data.at(1) = std::to_string(std::stof(std::any_cast<std::string>(code.at(i - 1).data.at(1))) * std::stof(std::any_cast<std::string>(code.at(i + 1).data.at(1))));
                             removeAtIndex(code, i + 1);
                             removeAtIndex(code, i);
-                            i -= 2;
+                            i -= 1;
                         }
                         else if (std::any_cast<std::string>(code.at(i + 1).data.at(0)) == "str") {
                             std::string strout = "";
@@ -1022,7 +1022,7 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
                             code.at(i - 1).data.at(0) = (std::string)"str";
                             removeAtIndex(code, i + 1);
                             removeAtIndex(code, i);
-                            i -= 2;
+                            i -= 1;
                         }
                     }
                     else if (std::any_cast<std::string>(code.at(i - 1).data.at(0)) == "str") {
@@ -1034,7 +1034,7 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
                             code.at(i - 1).data.at(1) = strout;
                             removeAtIndex(code, i + 1);
                             removeAtIndex(code, i);
-                            i -= 2;
+                            i -= 1;
                         }
                         else {
                             print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Not implomented yet!", PRINT_WHITE, PRINT_ERROR);
@@ -1120,7 +1120,7 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
                         // about 200 lines up there is almost the same code for functions.... try to fix it 
                         removeAtIndex(code, i + 1);
                         removeAtIndex(code, i);
-                        i -= 2;
+                        i -= 1;
                         // idk maybe test this shit
                     }
                     else if (std::any_cast<std::string>(code.at(i + 1).data.at(0)) == "object") {
@@ -1152,7 +1152,7 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
                         // about 200 lines up there is almost the same code for functions.... try to fix it 
                         removeAtIndex(code, i + 1);
                         removeAtIndex(code, i);
-                        i -= 2;
+                        i -= 1;
                         // idk maybe test this shit
                     }
                     else if (std::any_cast<std::string>(code.at(i - 1).data.at(0)) == "int") {
@@ -1166,7 +1166,7 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
                             code.at(i - 1).data.at(1) = std::to_string(std::stof(std::any_cast<std::string>(code.at(i - 1).data.at(1))) / num2);
                             removeAtIndex(code, i + 1);
                             removeAtIndex(code, i);
-                            i -= 2;
+                            i -= 1;
                         }
                         else if (std::any_cast<std::string>(code.at(i + 1).data.at(0)) == "str") {
                             print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": strings cannot be used in divition!", PRINT_WHITE, PRINT_ERROR);
@@ -1230,7 +1230,7 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
                         // about 200 lines up there is almost the same code for functions.... try to fix it 
                         removeAtIndex(code, i + 1);
                         removeAtIndex(code, i);
-                        i -= 2;
+                        i -= 1;
                         // idk maybe test this shit
                     }
                     else if (std::any_cast<std::string>(code.at(i + 1).data.at(0)) == "object") {
@@ -1270,7 +1270,7 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
                         // about 200 lines up there is almost the same code for functions.... try to fix it 
                         removeAtIndex(code, i + 1);
                         removeAtIndex(code, i);
-                        i -= 2;
+                        i -= 1;
                         // idk maybe test this shit
                     }
                     else if (std::any_cast<std::string>(code.at(i - 1).data.at(0)) == "int")
@@ -1284,7 +1284,7 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
 
                             removeAtIndex(code, i + 1);
                             removeAtIndex(code, i);
-                            i -= 2;
+                            i -= 1;
                         }
                         else if (std::any_cast<std::string>(code.at(i + 1).data.at(0)) == "str")
                         {
@@ -1363,7 +1363,7 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
                         // about 200 lines up there is almost the same code for functions.... try to fix it 
                         removeAtIndex(code, i + 1);
                         removeAtIndex(code, i);
-                        i -= 2;
+                        i -= 1;
                         // idk maybe test this shit
                     }
                     else if (std::any_cast<std::string>(code.at(i + 1).data.at(0)) == "object") {
@@ -1403,7 +1403,7 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
                         // about 200 lines up there is almost the same code for functions.... try to fix it 
                         removeAtIndex(code, i + 1);
                         removeAtIndex(code, i);
-                        i -= 2;
+                        i -= 1;
                         // idk maybe test this shit
                     }
                     else if (std::any_cast<std::string>(code.at(i - 1).data.at(0)) == "int") {
@@ -1411,7 +1411,7 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
                             code.at(i - 1).data.at(1) = std::to_string(std::stof(std::any_cast<std::string>(code.at(i - 1).data.at(1))) + std::stof(std::any_cast<std::string>(code.at(i + 1).data.at(1))));
                             removeAtIndex(code, i + 1);
                             removeAtIndex(code, i);
-                            i -= 2;
+                            i -= 1;
                         }
                         else {
                             print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Not implomented yet!", PRINT_WHITE, PRINT_ERROR);
@@ -1425,7 +1425,7 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
                             code.at(i - 1).data.at(1) = std::any_cast<std::string>(code.at(i - 1).data.at(1)) + std::any_cast<std::string>(code.at(i + 1).data.at(1));
                             removeAtIndex(code, i + 1);
                             removeAtIndex(code, i);
-                            i -= 2;
+                            i -= 1;
                         }
                         else {
                             print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Not implomented yet!", PRINT_WHITE, PRINT_ERROR);
@@ -1475,7 +1475,7 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
                         // about 200 lines up there is almost the same code for functions.... try to fix it 
                         removeAtIndex(code, i + 1);
                         removeAtIndex(code, i);
-                        i -= 2;
+                        i -= 1;
                         // idk maybe test this shit
                     }
                     else if (std::any_cast<std::string>(code.at(i + 1).data.at(0)) == "object") {
@@ -1515,7 +1515,7 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
                         // about 200 lines up there is almost the same code for functions.... try to fix it 
                         removeAtIndex(code, i + 1);
                         removeAtIndex(code, i);
-                        i -= 2;
+                        i -= 1;
                         // idk maybe test this shit
                     }
                     else if (std::any_cast<std::string>(code.at(i - 1).data.at(0)) == "int") {
@@ -1523,7 +1523,7 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
                             code.at(i - 1).data.at(1) = std::to_string(std::stof(std::any_cast<std::string>(code.at(i - 1).data.at(1))) - std::stof(std::any_cast<std::string>(code.at(i + 1).data.at(1))));
                             removeAtIndex(code, i + 1);
                             removeAtIndex(code, i);
-                            i -= 2;
+                            i -= 1;
                         }
                         else {
                             print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Not implomented yet!", PRINT_WHITE, PRINT_ERROR);
@@ -1542,8 +1542,11 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
 
     i = 0;
     while (i < code.size()) {
+        
         if (std::any_cast<std::string>(code[i].data[0]) == "keyword" && std::any_cast<std::string>(code[i].data[1]) == "=" && isIndexInBounds(code, i + 1)) {
-            if (std::any_cast<std::string>(code[i + 1].data[0]) == "keyword" && std::any_cast<std::string>(code[i + 1].data[1]) == "=") {
+            
+            if (std::any_cast<std::string>(code[i + 1].data.at(0)) == "keyword" && std::any_cast<std::string>(code[i + 1].data.at(1)) == "=") {
+                //std::cout << i << " " << std::any_cast<std::string>(code[i].data[1]) << "\n";
                 if (isIndexInBounds(code, i - 1) && isIndexInBounds(code, i + 2)) {
                     bool result;
                     if (std::any_cast<std::string>(code[i - 1].data[0]) == std::any_cast<std::string>(code[i + 2].data[0])) {
@@ -1581,7 +1584,7 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
                         removeAtIndex(code, i);
                         removeAtIndex(code, i);
                         removeAtIndex(code, i);
-                        i -= 3;
+                        i -= 1;
                     }
                     else {
                         code[i - 1].data[0] = (std::string)"int";
@@ -1589,7 +1592,7 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
                         removeAtIndex(code, i);
                         removeAtIndex(code, i);
                         removeAtIndex(code, i);
-                        i -= 3;
+                        i -= 1;
                     }
 
                 }
@@ -1634,7 +1637,7 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
                         removeAtIndex(code, i);
                         removeAtIndex(code, i);
                         removeAtIndex(code, i);
-                        i -= 3;
+                        i -= 1;
                     }
                     else {
                         code[i - 1].data[0] = (std::string)"int";
@@ -1642,16 +1645,26 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
                         removeAtIndex(code, i);
                         removeAtIndex(code, i);
                         removeAtIndex(code, i);
-                        i -= 3;
+                        i -= 1;
                     }
 
                 }
             }
         }
 
+        //std::cout << "iii: " << i << "\n";
+        //for (int xy = 0;xy!=code.size();xy++){
+        //    try{
+        //        std::cout << "i: " << xy << " " << std::any_cast<std::string>(code[xy].data[0]) << " " << std::any_cast<std::string>(code[xy].data[1]) << "\n";
+        //    }catch(...){
+//
+        //    }
+        //}
 
         i++;
     }
+
+    //std::cout << "DONE\n";
 
     i = 0;
     while (i < code.size()) {
@@ -1948,14 +1961,14 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
                         code[i - 1].data[1] = (std::string)"1";
                         removeAtIndex(code, i);
                         removeAtIndex(code, i);
-                        i -= 2;
+                        i -= 1;
                     }
                     else {
                         code[i - 1].data[0] = (std::string)"int";
                         code[i - 1].data[1] = (std::string)"0";
                         removeAtIndex(code, i);
                         removeAtIndex(code, i);
-                        i -= 2;
+                        i -= 1;
                     }
                 }
                 else {
@@ -2139,6 +2152,8 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
                             exit(-1);
                         }
                     }else {
+                        //for (int xy = 0;xy!=code.size();xy++)
+                        //    std::cout << std::any_cast<std::string>(code[xy].data[0]) << " " << std::any_cast<std::string>(code[xy].data[1]) << "\n";
                         print("ERROR at " + std::any_cast<std::string>(code.at(i).data.at(2)) + ": Expected bool!", PRINT_WHITE, PRINT_ERROR);
                         //print("ERROR: Expected bool.", PRINT_WHITE, PRINT_ERROR);
                         freedlibs();
@@ -2150,14 +2165,14 @@ Token eval(std::vector<Token> code, Venv* venv, std::string path) {
                         code[i - 1].data[1] = (std::string)"1";
                         removeAtIndex(code, i);
                         removeAtIndex(code, i);
-                        i -= 2;
+                        i -= 1;
                     }
                     else {
                         code[i - 1].data[0] = (std::string)"int";
                         code[i - 1].data[1] = (std::string)"0";
                         removeAtIndex(code, i);
                         removeAtIndex(code, i);
-                        i -= 2;
+                        i -= 1;
                     }
                 }
                 else {
