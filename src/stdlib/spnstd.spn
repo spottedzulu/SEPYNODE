@@ -1,0 +1,67 @@
+var dlib;
+
+if (CURRENT_RUNNING_OS == "WINDOWS"){
+    println << "loading stdlib for windows!" c< 4;
+    dlib = LOADDLIB "./stdlib.dll";
+}
+
+if (CURRENT_RUNNING_OS == "LINUX"){
+    println << "loading stdlib for linux!" c< 4;
+    dlib = LOADDLIB "./stdlib.so";
+}
+
+func get_input(){
+    EXECDLIBFUNC dlib "SPN_STD_GET_INPUT";
+    return ExecFunctionReturnVar;
+}
+
+func type(var data){
+    EXECDLIBFUNC dlib "SPN_STD_TYPE" data;
+    return ExecFunctionReturnVar;
+}
+
+func stoi(var string){
+    EXECDLIBFUNC dlib "SPN_STD_STOI" string;
+    return ExecFunctionReturnVar;
+}
+
+func itos(var integer){
+    EXECDLIBFUNC dlib "SPN_STD_ITOS" integer;
+    return ExecFunctionReturnVar;
+}
+
+class spn_std_class_system{
+    func Error(var string){
+        EXECDLIBFUNC dlib "SPN_STD_SYSTEM_ERROR" string;
+        return ExecFunctionReturnVar;
+    }
+
+    func Warning(var string){
+        EXECDLIBFUNC dlib "SPN_STD_SYSTEM_WARNING" string;
+        return ExecFunctionReturnVar;
+    }
+
+    func Exit(var exitcode=0){
+        EXECDLIBFUNC dlib "SPN_STD_SYSTEM_EXIT" exitcode;
+        return ExecFunctionReturnVar;
+    }
+
+}
+
+class spn_std_class_filesystem{
+    func exists(var path){
+        EXECDLIBFUNC dlib "SPN_STD_FILESYSTEM_EXISTS" exitcode;
+        return ExecFunctionReturnVar;
+    }
+}
+
+class spn_std_class_math{
+    func sqrt(var number){
+        EXECDLIBFUNC dlib "SPN_STD_SQRT" number;
+        return ExecFunctionReturnVar;
+    }
+}
+
+var system = spn_std_class_system();
+
+var math = spn_std_class_math();
