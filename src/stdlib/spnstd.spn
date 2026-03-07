@@ -63,5 +63,5 @@ class spn_std_class_math{
 }
 
 var system = spn_std_class_system();
-
+var filesystem = spn_std_class_filesystem();
 var math = spn_std_class_math();
