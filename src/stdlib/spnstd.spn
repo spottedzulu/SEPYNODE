@@ -60,6 +60,18 @@ class spn_std_class_math{
         EXECDLIBFUNC dlib "SPN_STD_SQRT" number;
         return ExecFunctionReturnVar;
     }
+    func cos(var number){
+        EXECDLIBFUNC dlib "SPN_STD_COS" number;
+        return ExecFunctionReturnVar;
+    }
+    func sin(var number){
+        EXECDLIBFUNC dlib "SPN_STD_SIN" number;
+        return ExecFunctionReturnVar;
+    }
+    func tan(var number){
+        EXECDLIBFUNC dlib "SPN_STD_TAN" number;
+        return ExecFunctionReturnVar;
+    }
 }
 
 var system = spn_std_class_system();
