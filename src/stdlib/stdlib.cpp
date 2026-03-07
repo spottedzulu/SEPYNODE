@@ -189,6 +189,72 @@ extern "C" __declspec(dllexport) transferableToken SPN_STD_FILESYSTEM_EXISTS(std
     return Token;
 }
 
+extern "C" __declspec(dllexport) transferableToken SPN_STD_COS(std::vector<transferableToken> input, sepynodedata spndata) {
+    if (spndata.spnversion < 2.0) {
+        SpnError("DLIB runtime error: Unsupported sepynode version (req: spn_v>=2, got: spn<2)!");
+    }
+    transferableToken Token;
+    Token.data.push_back((std::string)"int");
+    transferableToken firstinput = input.at(0);
+    float data;
+    if (std::any_cast<std::string>(GetTypeFromToken(firstinput)) == "int") {
+        data = std::stof(std::any_cast<std::string>(firstinput.data.at(1)));
+    }
+    float result;
+    try {
+        result = cos(data);
+    }
+    catch (const std::exception& e) {
+        SpnError("Error: " + (std::string)e.what());
+    }
+    Token.data.push_back(std::to_string(result));
+    return Token;
+}
+
+extern "C" __declspec(dllexport) transferableToken SPN_STD_SIN(std::vector<transferableToken> input, sepynodedata spndata) {
+    if (spndata.spnversion < 2.0) {
+        SpnError("DLIB runtime error: Unsupported sepynode version (req: spn_v>=2, got: spn<2)!");
+    }
+    transferableToken Token;
+    Token.data.push_back((std::string)"int");
+    transferableToken firstinput = input.at(0);
+    float data;
+    if (std::any_cast<std::string>(GetTypeFromToken(firstinput)) == "int") {
+        data = std::stof(std::any_cast<std::string>(firstinput.data.at(1)));
+    }
+    float result;
+    try {
+        result = sin(data);
+    }
+    catch (const std::exception& e) {
+        SpnError("Error: " + (std::string)e.what());
+    }
+    Token.data.push_back(std::to_string(result));
+    return Token;
+}
+
+extern "C" __declspec(dllexport) transferableToken SPN_STD_TAN(std::vector<transferableToken> input, sepynodedata spndata) {
+    if (spndata.spnversion < 2.0) {
+        SpnError("DLIB runtime error: Unsupported sepynode version (req: spn_v>=2, got: spn<2)!");
+    }
+    transferableToken Token;
+    Token.data.push_back((std::string)"int");
+    transferableToken firstinput = input.at(0);
+    float data;
+    if (std::any_cast<std::string>(GetTypeFromToken(firstinput)) == "int") {
+        data = std::stof(std::any_cast<std::string>(firstinput.data.at(1)));
+    }
+    float result;
+    try {
+        result = tan(data);
+    }
+    catch (const std::exception& e) {
+        SpnError("Error: " + (std::string)e.what());
+    }
+    Token.data.push_back(std::to_string(result));
+    return Token;
+}
+
 #elif defined(__linux__)
 #include <cstdlib>
 
@@ -299,6 +365,72 @@ extern "C" transferableToken SPN_STD_SQRT(std::vector<transferableToken> input, 
         SpnError("Error: " + (std::string)e.what());
     }
     Token.data.push_back((std::string)std::to_string(result));
+    return Token;
+}
+
+extern "C" transferableToken SPN_STD_COS(std::vector<transferableToken> input, sepynodedata spndata) {
+    if (spndata.spnversion < 2.0) {
+        SpnError("DLIB runtime error: Unsupported sepynode version (req: spn_v>=2, got: spn<2)!");
+    }
+    transferableToken Token;
+    Token.data.push_back((std::string)"int");
+    transferableToken firstinput = input.at(0);
+    float data;
+    if (std::any_cast<std::string>(GetTypeFromToken(firstinput)) == "int") {
+        data = std::stof(std::any_cast<std::string>(firstinput.data.at(1)));
+    }
+    float result;
+    try {
+        result = cos(data);
+    }
+    catch (const std::exception& e) {
+        SpnError("Error: " + (std::string)e.what());
+    }
+    Token.data.push_back(std::to_string(result));
+    return Token;
+}
+
+extern "C" transferableToken SPN_STD_SIN(std::vector<transferableToken> input, sepynodedata spndata) {
+    if (spndata.spnversion < 2.0) {
+        SpnError("DLIB runtime error: Unsupported sepynode version (req: spn_v>=2, got: spn<2)!");
+    }
+    transferableToken Token;
+    Token.data.push_back((std::string)"int");
+    transferableToken firstinput = input.at(0);
+    float data;
+    if (std::any_cast<std::string>(GetTypeFromToken(firstinput)) == "int") {
+        data = std::stof(std::any_cast<std::string>(firstinput.data.at(1)));
+    }
+    float result;
+    try {
+        result = sin(data);
+    }
+    catch (const std::exception& e) {
+        SpnError("Error: " + (std::string)e.what());
+    }
+    Token.data.push_back(std::to_string(result));
+    return Token;
+}
+
+extern "C" transferableToken SPN_STD_TAN(std::vector<transferableToken> input, sepynodedata spndata) {
+    if (spndata.spnversion < 2.0) {
+        SpnError("DLIB runtime error: Unsupported sepynode version (req: spn_v>=2, got: spn<2)!");
+    }
+    transferableToken Token;
+    Token.data.push_back((std::string)"int");
+    transferableToken firstinput = input.at(0);
+    float data;
+    if (std::any_cast<std::string>(GetTypeFromToken(firstinput)) == "int") {
+        data = std::stof(std::any_cast<std::string>(firstinput.data.at(1)));
+    }
+    float result;
+    try {
+        result = tan(data);
+    }
+    catch (const std::exception& e) {
+        SpnError("Error: " + (std::string)e.what());
+    }
+    Token.data.push_back(std::to_string(result));
     return Token;
 }
 
